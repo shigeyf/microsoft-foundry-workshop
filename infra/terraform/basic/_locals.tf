@@ -16,7 +16,7 @@ locals {
   storage_account_name        = "st${local.resource_short_name}${local.rand_id}"
 }
 
-// Network isolation mode derived values
+// Configuration derived values
 locals {
   // Whether to create VNet, PE, and private DNS zones
   enable_private_networking = var.network_isolation_mode != "public"
@@ -26,10 +26,7 @@ locals {
 
   // Whether to use existing Private DNS Zones from Connectivity subscription
   use_existing_dns_zones = var.use_existing_private_dns_zones && var.connectivity_subscription_id != "" && var.connectivity_dns_zone_resource_group != ""
-}
 
-// Key Vault configuration derived values
-locals {
   // Enable purge protection on Key Vault for production environments to prevent permanent deletion.
   // When disabled in dev/demo, the vault can be purged automatically via the provider's purge_soft_delete_on_destroy setting.
   keyvault_purge_protection_enabled = var.is_production
