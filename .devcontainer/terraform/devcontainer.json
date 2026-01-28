@@ -7,7 +7,7 @@
   "features": {
     // Git version pinned for reproducibility
     "ghcr.io/devcontainers/features/git:1": {
-      "version": "2.47"
+      "version": "2.47.1"
     },
     "ghcr.io/devcontainers/features/common-utils:2": {
       "installZsh": true,
@@ -17,7 +17,7 @@
     },
     // Docker version pinned for reproducibility
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
-      "version": "27.4"
+      "version": "27.4.1"
     },
     // Node.js version pinned to specific LTS version for reproducibility
     "ghcr.io/devcontainers/features/node:1": {
@@ -37,7 +37,7 @@
     },
     // Azure CLI version pinned for reproducibility
     "ghcr.io/devcontainers/features/azure-cli:1": {
-      "version": "2.68",
+      "version": "2.68.0",
       "extensions": "account"
     },
     // pre-commit version pinned for reproducibility
