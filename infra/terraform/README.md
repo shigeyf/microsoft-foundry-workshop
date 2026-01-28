@@ -194,7 +194,7 @@ Prepare the Azure Storage account configuration for storing Terraform state file
 Copy the sample file and modify the contents.
 
 ```bash
-cp ../backend.hcl.example backend.hcl
+cp ../backend.hcl.config.example backend.hcl
 ```
 
 > :information_source: **backend.hcl configuration example**
