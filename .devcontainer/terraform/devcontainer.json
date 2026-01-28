@@ -12,7 +12,8 @@
     "ghcr.io/devcontainers/features/common-utils:2": {
       "installZsh": true,
       "installOhMyZsh": true,
-      "upgradePackages": true
+      // Disable package upgrades to ensure reproducibility
+      "upgradePackages": false
     },
     // Docker version pinned for reproducibility
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
