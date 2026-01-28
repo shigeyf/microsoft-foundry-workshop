@@ -1,0 +1,11 @@
+# Terraform Backend Configuration Example
+# Copy this file to backend.hcl and fill in the values
+# DO NOT commit backend.hcl to source control
+
+storage_account_name = "<your-tfstate-storage-account>"
+container_name       = "tfstate"
+key                  = "basic-setup.terraform.tfstate"
+
+# Optional: Specify subscription if different from default
+# resource_group_name  = "<your-tfstate-resource-group>"
+# subscription_id      = "<your-subscription-id>"

@@ -1,0 +1,73 @@
+{
+  "name": "Terraform Development",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}/infra/terraform",
+  // Base image pinned by digest for reproducibility
+  "image": "mcr.microsoft.com/devcontainers/base@sha256:e93b9972fde44e07ffa51010b880eecc1753b2b7414c7d448554aab38cf2d489",
+
+  "features": {
+    // Git version pinned for reproducibility
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "2.47.1"
+    },
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "installOhMyZsh": true,
+      // Disable package upgrades to ensure reproducibility
+      "upgradePackages": false
+    },
+    // Docker version pinned for reproducibility
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "27.4.1"
+    },
+    // Node.js version pinned to specific LTS version for reproducibility
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22.11.0"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12.8"
+    },
+    // uv version pinned for reproducibility
+    "ghcr.io/devcontainers-extra/features/uv:1": {
+      "version": "0.5.11"
+    },
+    // Terraform and tflint versions pinned for reproducibility
+    "ghcr.io/devcontainers/features/terraform:1": {
+      "version": "1.9.8",
+      "tflint": "0.54.0"
+    },
+    // Azure CLI version pinned for reproducibility
+    "ghcr.io/devcontainers/features/azure-cli:1": {
+      "version": "2.68.0",
+      "extensions": "account"
+    },
+    // pre-commit version pinned for reproducibility
+    "ghcr.io/devcontainers-extra/features/pre-commit:2": {
+      "version": "4.0.1"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      // "extensions" for this project are specified in here will be installed in Dev Container.
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "hashicorp.terraform",
+        "ms-azuretools.vscode-azureterraform",
+        "ms-vscode.azurecli",
+        "ms-vscode.makefile-tools",
+        "redhat.vscode-yaml"
+      ]
+      // "settings" for this project must be placed in infra/terraform/.vscode/settings.json.
+      // DevContainer automatically inherits the workspace settings.json.
+      // "settings": {}
+    }
+  },
+
+  "postCreateCommand": "terraform version && az version",
+
+  "remoteUser": "vscode",
+
+  "mounts": [
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.azure,target=/home/vscode/.azure,type=bind,consistency=cached"
+  ]
+}
