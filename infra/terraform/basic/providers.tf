@@ -21,7 +21,11 @@ provider "azurerm" {
 provider "azurerm" {
   alias               = "connectivity"
   storage_use_azuread = true
-  subscription_id     = var.connectivity_subscription_id == "" ? var.target_subscription_id : var.connectivity_subscription_id
+  subscription_id = (
+    var.connectivity_subscription_id == ""
+    ? (var.target_subscription_id == "" ? null : var.target_subscription_id)
+    : var.connectivity_subscription_id
+  )
   features {}
 }
 
