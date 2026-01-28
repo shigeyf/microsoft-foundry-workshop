@@ -30,8 +30,8 @@ locals {
 
 // Key Vault configuration derived values
 locals {
-  // Purge protection should be enabled for production environments
-  // and disabled for demo/dev environments to allow clean teardown
+  // Enable purge protection on Key Vault for production environments to prevent permanent deletion.
+  // When disabled in dev/demo, the vault can be purged automatically via the provider's purge_soft_delete_on_destroy setting.
   keyvault_purge_protection_enabled = var.is_production
 }
 
