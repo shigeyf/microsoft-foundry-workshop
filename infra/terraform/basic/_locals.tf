@@ -28,6 +28,13 @@ locals {
   use_existing_dns_zones = var.use_existing_private_dns_zones && var.connectivity_subscription_id != "" && var.connectivity_dns_zone_resource_group != ""
 }
 
+// Key Vault configuration derived values
+locals {
+  // Purge protection should be enabled for production environments
+  // and disabled for demo/dev environments to allow clean teardown
+  keyvault_purge_protection_enabled = var.is_production
+}
+
 // Private DNS Zone IDs - unified references for both new and existing zones
 locals {
   private_dns_zone_id_ai_services = local.enable_private_networking ? (
