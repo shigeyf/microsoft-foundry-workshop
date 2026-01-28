@@ -185,7 +185,7 @@ Terraform の状態ファイルを格納する Azure Storage アカウントの�
 サンプルファイルをコピーして内容を変更してください。
 
 ```bash
-cp ../backend.hcl.example backend.hcl
+cp ../backend.hcl.config.example backend.hcl
 ```
 
 > :information_source: **backend.hcl の設定例**
