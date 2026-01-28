@@ -30,15 +30,31 @@ Always respond in Japanese.
   - 形式: `copilot/issue-<Issue番号>-<短い説明>`
   - 例: `copilot/issue-123-add-login-feature`
   - 説明部分はケバブケース (小文字、ハイフン区切り) で記述
-- **PR タイトル**: 必ず日本語で記述し、先頭に `[Copilot]` を付けること
-  - 例: `[Copilot] 機能Aの実装`
+- **PR タイトル**: 必ず英語で記述し、先頭に `[Copilot]` を付けること
+  - 例: `[Copilot] Implement feature A`
   - Draft PR の場合は `[WIP]` プレフィックスを維持すること
-  - 例: `[WIP] [Copilot] 機能Aの実装`
-- **PR 説明文**: 日本語で記述し、変更内容を明確に説明すること
+  - 例: `[WIP] [Copilot] Implement feature A`
+- **PR 説明文**: 英語と日本語で記述し、変更内容を明確に説明すること
   - 変更の目的と理由を含める
   - 影響範囲を明記する
-- **コミットメッセージ**: 日本語で記述し、先頭に `[Copilot]` を付けること
-  - 例: `[Copilot] READMEを更新`
+  - 説明文の記載方法は以下の通りとする:
+
+    ```text
+    <変更内容の英語説明>
+
+    ---
+
+    **[Japanese]**
+
+    <変更内容の日本語説明>
+    ```
+
+- **コミットメッセージ**: 英語で記述し、先頭に `[Copilot]` を付けること
+  - 例: `[Copilot] Update README`
+  - Conventional Commits 1.0.0 形式に従うこと
+    - 例: `[Copilot] feat: add user authentication`
+    - Conventional Commits の詳細は conventional-commits.instructions.md を参照
+      場所: .github/conventional-commits.instructions.md
   - 変更内容を簡潔かつ明確に記述する
 
 ### Copilot タスク作業プロセス
