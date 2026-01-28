@@ -14,7 +14,7 @@ resource "azurerm_key_vault" "this" {
   enabled_for_deployment          = var.keyvault_enabled_for_deployment
   enabled_for_disk_encryption     = var.keyvault_enabled_for_disk_encryption
   enabled_for_template_deployment = var.keyvault_enabled_for_template_deployment
-  purge_protection_enabled        = var.keyvault_purge_protection_enabled
+  purge_protection_enabled        = local.keyvault_purge_protection_enabled
   soft_delete_retention_days      = var.keyvault_soft_delete_retention_days
 }
 

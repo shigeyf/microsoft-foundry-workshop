@@ -28,11 +28,7 @@ variable "keyvault_enabled_for_template_deployment" {
   type        = bool
   default     = false
 }
-variable "keyvault_purge_protection_enabled" {
-  description = "Enable purge protection"
-  type        = bool
-  default     = true
-}
+
 variable "keyvault_soft_delete_retention_days" {
   description = "Soft delete retention days"
   type        = number
