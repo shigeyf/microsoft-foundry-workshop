@@ -21,10 +21,10 @@
     },
     // Node.js version pinned to specific LTS version for reproducibility
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "22"
+      "version": "22.11.0"
     },
     "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.12"
+      "version": "3.12.8"
     },
     // uv version pinned for reproducibility
     "ghcr.io/devcontainers-extra/features/uv:1": {
@@ -32,7 +32,7 @@
     },
     // Terraform and tflint versions pinned for reproducibility
     "ghcr.io/devcontainers/features/terraform:1": {
-      "version": "1.9",
+      "version": "1.9.8",
       "tflint": "0.54.0"
     },
     // Azure CLI version pinned for reproducibility
