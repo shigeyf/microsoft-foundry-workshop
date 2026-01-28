@@ -39,6 +39,14 @@ variable "use_existing_private_dns_zones" {
   EOT
   type        = bool
   default     = false
+
+  validation {
+    condition = !var.use_existing_private_dns_zones || (
+      var.connectivity_subscription_id != "" &&
+      var.connectivity_dns_zone_resource_group != ""
+    )
+    error_message = "When use_existing_private_dns_zones is true, connectivity_subscription_id and connectivity_dns_zone_resource_group must be set (non-empty)."
+  }
 }
 
 variable "connectivity_subscription_id" {
