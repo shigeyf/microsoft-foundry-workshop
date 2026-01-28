@@ -1,0 +1,49 @@
+{
+  "name": "Project Root",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "installOhMyZsh": true,
+      "upgradePackages": true
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    },
+    "ghcr.io/devcontainers-extra/features/uv:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers-extra/features/pre-commit:2": {
+      "version": "latest"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      // "extensions" for this project are specified in here will be installed in Dev Container.
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "GitHub.vscode-github-actions",
+        "redhat.vscode-yaml",
+        "ms-python.python",
+        "ms-vscode.makefile-tools"
+      ]
+      // "settings" for this project must be placed in infra/terraform/.vscode/settings.json.
+      // DevContainer automatically inherits the workspace settings.json.
+      // "settings": {}
+    }
+  },
+
+  "remoteUser": "vscode"
+}

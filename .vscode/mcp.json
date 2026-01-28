@@ -1,0 +1,17 @@
+{
+  "servers": {
+    "github-remote-mcp-server": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "X-MCP-Readonly": "true"
+      }
+    },
+    "microsoft/markitdown": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["markitdown-mcp@0.0.1a4"]
+    }
+  },
+  "inputs": []
+}
