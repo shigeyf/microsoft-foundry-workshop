@@ -9,10 +9,16 @@ provider "azurerm" {
       # For production, prevent accidental deletion of resource groups with resources
       prevent_deletion_if_contains_resources = var.is_production
     }
-    key_vault {
+    cognitive_account {
       # For demo/dev environments, purge soft-deleted items on destroy for clean teardown
       # For production, keep soft-delete protection to prevent accidental data loss
       purge_soft_delete_on_destroy = !var.is_production
+    }
+    key_vault {
+      # For demo/dev environments, purge soft-deleted items on destroy for clean teardown
+      # For production, keep soft-delete protection to prevent accidental data loss
+      purge_soft_delete_on_destroy = !var.is_production && !var.enable_cmk
+      //recover_soft_deleted_key_vaults = true
     }
   }
 }
