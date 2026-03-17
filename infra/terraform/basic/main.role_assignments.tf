@@ -37,6 +37,13 @@ resource "azurerm_role_assignment" "blob_for_search_service" {
   scope                = azurerm_storage_account.this.id
 }
 
+resource "azurerm_role_assignment" "self_search_service" {
+  count                = var.enable_ai_search ? 1 : 0
+  principal_id         = azurerm_search_service.this[0].identity[0].principal_id
+  role_definition_name = "Search Index Data Contributor"
+  scope                = azurerm_search_service.this[0].id
+}
+
 // For Foundry resource with Azure AI Search
 //   - Assign Search Index Data Contributor to your Foundry resource managed identity.
 //   - Assign Search Index Data Reader to your Foundry resource managed identity.
@@ -82,6 +89,11 @@ resource "azurerm_role_assignment" "search_service_for_cognitive_account_project
 //  - Search Index Data Contributor
 //  - Search Index Data Reader
 locals {
+  users_roles_for_foundry = toset([
+    "Azure AI Administrator",
+    "Azure AI Account Owner",
+    "Azure AI Owner",
+  ])
   users_roles_for_ai_search = toset([
     "Search Service Contributor",
     "Search Index Data Contributor",
@@ -90,6 +102,13 @@ locals {
   users_roles_for_blob = toset([
     "Storage Blob Data Owner",
   ])
+}
+
+resource "azurerm_role_assignment" "foundry_for_developer_group" {
+  for_each             = var.enable_ai_search ? local.users_roles_for_foundry : toset([])
+  principal_id         = data.azuread_group.ai_developer_group.object_id
+  role_definition_name = each.key
+  scope                = azurerm_cognitive_account.this.id
 }
 
 resource "azurerm_role_assignment" "search_service_for_developer_group" {
