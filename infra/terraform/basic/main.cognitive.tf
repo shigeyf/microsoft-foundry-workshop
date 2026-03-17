@@ -8,7 +8,7 @@ resource "azurerm_cognitive_account" "this" {
 
   custom_subdomain_name         = local.cognitive_account_name
   kind                          = "AIServices"
-  local_auth_enabled            = false
+  local_auth_enabled            = var.enable_cognitive_local_auth
   project_management_enabled    = true
   public_network_access_enabled = local.public_network_access_enabled
   sku_name                      = var.cognitive_account_sku

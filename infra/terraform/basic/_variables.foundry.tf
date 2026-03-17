@@ -51,3 +51,13 @@ variable "cognitive_rbac_propagation_wait_duration" {
     error_message = "The wait duration must be specified in seconds with format: <number>s (e.g., '120s')."
   }
 }
+
+variable "enable_cognitive_local_auth" {
+  description = <<-EOT
+    Enable local authentication (API key) for the Cognitive Account.
+    WARNING: This is less secure than Entra ID authentication.
+    Required for AI Gateway integration with Microsoft Foundry.
+  EOT
+  type        = bool
+  default     = false
+}
