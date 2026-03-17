@@ -6,6 +6,12 @@ variable "enable_ai_search" {
   default     = false
 }
 
+variable "enable_ai_search_sensitivity_labels" {
+  description = "Enable sensitivity labels for AI Search indexing (requires enable_ai_search to be true)"
+  type        = bool
+  default     = false
+}
+
 variable "ai_search_sku" {
   description = "SKU for the AI Search resource"
   type        = string
