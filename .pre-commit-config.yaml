@@ -46,23 +46,20 @@ repos:
         name: '[Lint] check-yaml (*.yml,*.yaml)'
         types_or: [yaml]
 
-  - repo: https://github.com/psf/black
-    rev: 26.1.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.9
     hooks:
-      - id: black
-        name: '[Fmt]  Black (*.py)'
+      - id: ruff
+        name: '[Lint] Ruff (*.py)'
+        args: [--fix]
+      - id: ruff-format
+        name: '[Fmt]  Ruff format (*.py)'
 
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.3.0
+  - repo: https://github.com/ComPWA/taplo-pre-commit
+    rev: v0.9.3
     hooks:
-      - id: flake8
-        name: '[Lint] Flake8 (*.py)'
-
-  - repo: https://github.com/checkmake/checkmake
-    rev: v0.3.0
-    hooks:
-    - id: checkmake
-      name: '[Lint] checkmake (Makefile)'
+      - id: taplo-format
+        name: '[Fmt]  Taplo (*.toml)'
 
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.99.5

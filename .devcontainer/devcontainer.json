@@ -28,7 +28,7 @@
       "version": "1.9",
       "tflint": "latest"
     },
-    "ghcr.io/devcontainers-extra/features/pre-commit:2": {
+    "ghcr.io/devcontainers-extra/features/uv:1": {
       "version": "latest"
     }
   },
@@ -48,8 +48,8 @@
         "ms-toolsai.jupyter-keymap",
         "ms-toolsai.jupyter-renderers",
         "ms-vscode.azurecli",
-        "ms-vscode.makefile-tools",
-        "redhat.vscode-yaml"
+        "redhat.vscode-yaml",
+        "tamasfe.even-better-toml"
       ]
       // "settings" for this project must be placed in infra/terraform/.vscode/settings.json.
       // DevContainer automatically inherits the workspace settings.json.
@@ -57,7 +57,7 @@
     }
   },
 
-  "postCreateCommand": "pip install --upgrade pip && terraform version && az version",
+  "postCreateCommand": "uv sync --extra dev && uv run poe setup && terraform version && az version",
 
   "remoteUser": "vscode",
   "mounts": [
