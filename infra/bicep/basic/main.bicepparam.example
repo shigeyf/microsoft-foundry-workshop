@@ -1,0 +1,45 @@
+// main.bicepparam — PoC environment parameter file
+//
+// Usage:
+//   az deployment group create \
+//     --resource-group $RG \
+//     --template-file main.bicep \
+//     --parameters main.bicepparam
+
+using './main.bicep'
+
+// ── Required parameters ──────────────────────────────────────────
+// Deployment environment (dev | stg | poc | prd)
+param env = 'poc'
+// Project abbreviation (lowercase alphanumeric, 8 characters or less recommended)
+param project = 'foundry'
+// Display name shown in the Foundry portal
+param foundryProjectDisplayName = 'Foundry PoC'
+// Description of the Foundry project
+param foundryProjectDescription = 'Foundry PoC project'
+// Target deployment region
+param location = 'eastus2'
+
+// ── Optional tag parameters (can be omitted) ─────────────────────
+// param owner         = 'platform-team'
+// param costCenter    = 'CC-1234'
+// param businessUnit  = 'engineering'
+// param criticality   = 'medium'        // low | medium | high | critical
+// param dataClassification = 'internal' // public | internal | confidential | restricted
+// param expiryDate    = '2026-12-31'    // Scheduled decommission date for temporary resources
+
+// ── Observability parameters (optional) ──────────────────────────
+param createObservability = true
+// param createObservability = false
+// param existingLogWorkspaceId = '/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.OperationalInsights/workspaces/<name>'
+// param existingAppInsightsId  = '/subscriptions/<sub>/resourceGroups/<rg>/providers/microsoft.insights/components/<name>'
+
+// ── CMK parameters (optional) ────────────────────────────────────
+param enableCmk = true
+param enableCmkAutoRotation = true
+
+// ── Soft-deleted resource restore mode ───────────────────────────
+// When a resource with the same name is soft-deleted, pass via CLI:
+//   Key Vault:       --parameters keyvaultRestore=true
+//   Foundry Account: --parameters foundryRestore=true
+// Not required for normal new deployments (default values are used).
