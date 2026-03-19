@@ -2,18 +2,18 @@
 
 // Naming variables for AI Foundry resources
 locals {
-  resource_short_name = substr(local.resource_suffix_hash, 0, 16)
-
-  resource_group_name         = "rg-${join("-", local.resource_suffix)}-${local.rand_id}"
-  cognitive_account_name      = "cogacct-${join("-", local.resource_suffix)}-${local.rand_id}"
-  cognitive_project_name      = "proj-${join("-", local.resource_suffix)}-${local.rand_id}"
-  cognitive_uami_name         = "uami-${join("-", local.resource_suffix)}-${local.rand_id}"
-  search_service_name         = "srch-${join("-", local.resource_suffix)}-${local.rand_id}"
-  vnet_name                   = "vnet-${join("-", local.resource_suffix)}-${local.rand_id}"
-  loganalytics_workspace_name = "law-${join("-", local.resource_suffix)}-${local.rand_id}"
-  application_insights_name   = "appi-${join("-", local.resource_suffix)}-${local.rand_id}"
-  key_vault_name              = "kv-${local.resource_short_name}${local.rand_id}"
-  storage_account_name        = "st${local.resource_short_name}${local.rand_id}"
+  resource_group_name    = "rg-${local.resource_long_name}"
+  cognitive_account_name = "cogacct-${local.resource_long_name}"
+  cognitive_project_name = "proj-${local.resource_long_name}"
+  //cognitive_uami_name         = "uami-${local.resource_long_name}"
+  uami_cmk_name               = "uami-cmk-${local.resource_long_name}"
+  search_service_name         = "srch-${local.resource_long_name}"
+  vnet_name                   = "vnet-${local.resource_long_name}"
+  loganalytics_workspace_name = "log-${local.resource_long_name}"
+  application_insights_name   = "appi-${local.resource_long_name}"
+  key_vault_name              = "kv-${local.resource_short_name}"
+  storage_account_name        = "st${local.resource_alphanum_name}"
+  acr_name                    = "cr${local.resource_alphanum_name}"
 }
 
 // Configuration derived values
@@ -30,6 +30,20 @@ locals {
   // Enable purge protection on Key Vault for production environments to prevent permanent deletion.
   // When disabled in dev/demo, the vault can be purged automatically via the provider's purge_soft_delete_on_destroy setting.
   keyvault_purge_protection_enabled = var.is_production || var.enable_cmk
+}
+
+// Build a clean tags map — merge base tags with non-empty optional tags,
+// matching Bicep's union() pattern that omits keys with null values.
+locals {
+  tags = merge(
+    var.tags,
+    var.owner != "" ? { owner = var.owner } : {},
+    var.cost_center != "" ? { costCenter = var.cost_center } : {},
+    var.business_unit != "" ? { businessUnit = var.business_unit } : {},
+    var.criticality != "" ? { criticality = var.criticality } : {},
+    var.data_classification != "" ? { dataClassification = var.data_classification } : {},
+    var.expiry_date != "" ? { expiryDate = var.expiry_date } : {},
+  )
 }
 
 // Private DNS Zone IDs - unified references for both new and existing zones

@@ -7,7 +7,7 @@ resource "azurerm_private_endpoint" "cognitive" {
   resource_group_name = azurerm_resource_group.this.name
   location            = var.location
   subnet_id           = azurerm_subnet.private_endpoint[0].id
-  tags                = var.tags
+  tags                = local.tags
 
   private_service_connection {
     name                           = "psc-${local.cognitive_account_name}"
@@ -33,7 +33,7 @@ resource "azurerm_private_endpoint" "keyvault" {
   resource_group_name = azurerm_resource_group.this.name
   location            = var.location
   subnet_id           = azurerm_subnet.private_endpoint[0].id
-  tags                = var.tags
+  tags                = local.tags
 
   private_service_connection {
     name                           = "psc-${local.key_vault_name}"
@@ -55,7 +55,7 @@ resource "azurerm_private_endpoint" "search" {
   resource_group_name = azurerm_resource_group.this.name
   location            = var.location
   subnet_id           = azurerm_subnet.private_endpoint[0].id
-  tags                = var.tags
+  tags                = local.tags
 
   private_service_connection {
     name                           = "psc-${local.search_service_name}"

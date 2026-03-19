@@ -29,7 +29,7 @@ resource "azapi_resource" "foundry_ai_search_connection" {
 resource "azapi_resource" "foundry_appInsights_connection" {
   count                     = var.enable_app_insights ? 1 : 0
   type                      = "Microsoft.CognitiveServices/accounts/connections@2025-09-01"
-  name                      = replace(azurerm_application_insights.this[0].name, "-", "")
+  name                      = replace(local.app_insights_name, "-", "")
   parent_id                 = azurerm_cognitive_account.this.id
   schema_validation_enabled = false
 
@@ -37,16 +37,16 @@ resource "azapi_resource" "foundry_appInsights_connection" {
     properties = {
       isSharedToAll = true
       category      = "AppInsights"
-      target        = azurerm_application_insights.this[0].id
+      target        = local.app_insights_id
 
       authType = "ApiKey"
       credentials = {
-        key = azurerm_application_insights.this[0].connection_string
+        key = local.app_insights_connection_string
       }
 
       metadata = {
         ApiType    = "Azure"
-        ResourceId = azurerm_application_insights.this[0].id
+        ResourceId = local.app_insights_id
       }
     }
   }

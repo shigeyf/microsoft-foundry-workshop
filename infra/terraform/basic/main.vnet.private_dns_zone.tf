@@ -68,7 +68,7 @@ resource "azurerm_private_dns_zone" "ai_services" {
   count               = local.enable_private_networking && !local.use_existing_dns_zones ? 1 : 0
   name                = "privatelink.services.ai.azure.com"
   resource_group_name = azurerm_resource_group.this.name
-  tags                = var.tags
+  tags                = local.tags
 }
 
 // ============================================================================
@@ -83,7 +83,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "ai_services" {
   private_dns_zone_name = azurerm_private_dns_zone.ai_services[0].name
   virtual_network_id    = azurerm_virtual_network.this[0].id
   registration_enabled  = false
-  tags                  = var.tags
+  tags                  = local.tags
 }
 
 // ============================================================================
@@ -108,7 +108,7 @@ resource "azurerm_private_dns_zone" "cognitive" {
   count               = local.enable_private_networking && !local.use_existing_dns_zones ? 1 : 0
   name                = "privatelink.cognitiveservices.azure.com"
   resource_group_name = azurerm_resource_group.this.name
-  tags                = var.tags
+  tags                = local.tags
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "cognitive" {
@@ -118,7 +118,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "cognitive" {
   private_dns_zone_name = azurerm_private_dns_zone.cognitive[0].name
   virtual_network_id    = azurerm_virtual_network.this[0].id
   registration_enabled  = false
-  tags                  = var.tags
+  tags                  = local.tags
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "cognitive_existing" {
@@ -136,7 +136,7 @@ resource "azurerm_private_dns_zone" "openai" {
   count               = local.enable_private_networking && !local.use_existing_dns_zones ? 1 : 0
   name                = "privatelink.openai.azure.com"
   resource_group_name = azurerm_resource_group.this.name
-  tags                = var.tags
+  tags                = local.tags
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "openai" {
@@ -146,7 +146,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "openai" {
   private_dns_zone_name = azurerm_private_dns_zone.openai[0].name
   virtual_network_id    = azurerm_virtual_network.this[0].id
   registration_enabled  = false
-  tags                  = var.tags
+  tags                  = local.tags
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "openai_existing" {
@@ -164,7 +164,7 @@ resource "azurerm_private_dns_zone" "keyvault" {
   count               = local.enable_private_networking && !local.use_existing_dns_zones && var.enable_cmk ? 1 : 0
   name                = "privatelink.vaultcore.azure.net"
   resource_group_name = azurerm_resource_group.this.name
-  tags                = var.tags
+  tags                = local.tags
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "keyvault" {
@@ -174,7 +174,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "keyvault" {
   private_dns_zone_name = azurerm_private_dns_zone.keyvault[0].name
   virtual_network_id    = azurerm_virtual_network.this[0].id
   registration_enabled  = false
-  tags                  = var.tags
+  tags                  = local.tags
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "keyvault_existing" {
@@ -192,7 +192,7 @@ resource "azurerm_private_dns_zone" "search" {
   count               = local.enable_private_networking && !local.use_existing_dns_zones && var.enable_ai_search ? 1 : 0
   name                = "privatelink.search.windows.net"
   resource_group_name = azurerm_resource_group.this.name
-  tags                = var.tags
+  tags                = local.tags
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "search" {
@@ -202,7 +202,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "search" {
   private_dns_zone_name = azurerm_private_dns_zone.search[0].name
   virtual_network_id    = azurerm_virtual_network.this[0].id
   registration_enabled  = false
-  tags                  = var.tags
+  tags                  = local.tags
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "search_existing" {

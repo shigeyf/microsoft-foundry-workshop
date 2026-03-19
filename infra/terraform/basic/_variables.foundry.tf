@@ -1,14 +1,46 @@
 // _variables.foundry.tf
 
 variable "ai_project_developers_group_name" {
-  description = "The name of the Azure AD group for AI Foundry project developers"
+  description = "The name of the Azure AD group for AI Foundry project developers. Leave empty to skip developer group RBAC."
   type        = string
+  default     = ""
+}
+
+variable "ai_project_users_group_name" {
+  description = "The name of the Azure AD group for AI Foundry project users. Leave empty to skip user group RBAC."
+  type        = string
+  default     = ""
 }
 
 variable "enable_app_insights" {
   description = "Enable Application Insights for the AI Foundry resources"
   type        = bool
   default     = false
+}
+
+variable "create_observability" {
+  description = <<-EOT
+    How to provision observability resources:
+      true  (default) - Creates new Log Analytics and Application Insights.
+                        Suitable for self-contained environments such as PoC, dev, and stg.
+      false           - References existing shared monitoring resources.
+                        Use this for production when connecting to a central Log Analytics
+                        managed by the platform team, and provide the two IDs below.
+  EOT
+  type        = bool
+  default     = true
+}
+
+variable "existing_log_workspace_id" {
+  description = "Resource ID of existing Log Analytics workspace (required when create_observability=false)"
+  type        = string
+  default     = ""
+}
+
+variable "existing_app_insights_id" {
+  description = "Resource ID of existing Application Insights (required when create_observability=false)"
+  type        = string
+  default     = ""
 }
 
 variable "cognitive_project_name" {

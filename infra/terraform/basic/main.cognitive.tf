@@ -4,7 +4,7 @@ resource "azurerm_cognitive_account" "this" {
   name                = local.cognitive_account_name
   resource_group_name = azurerm_resource_group.this.name
   location            = var.location
-  tags                = var.tags
+  tags                = local.tags
 
   custom_subdomain_name         = local.cognitive_account_name
   kind                          = "AIServices"
@@ -15,7 +15,7 @@ resource "azurerm_cognitive_account" "this" {
 
   identity {
     type         = var.enable_cmk ? "SystemAssigned, UserAssigned" : "SystemAssigned"
-    identity_ids = var.enable_cmk ? [azurerm_user_assigned_identity.cognitive_account[0].id] : null
+    identity_ids = var.enable_cmk ? [azurerm_user_assigned_identity.cmk[0].id] : null
   }
 
   network_acls {
@@ -31,7 +31,7 @@ resource "azurerm_cognitive_account" "this" {
     for_each = var.enable_cmk ? [1] : []
     content {
       key_vault_key_id   = azurerm_key_vault_key.this[0].id
-      identity_client_id = azurerm_user_assigned_identity.cognitive_account[0].client_id
+      identity_client_id = azurerm_user_assigned_identity.cmk[0].client_id
     }
   }
 

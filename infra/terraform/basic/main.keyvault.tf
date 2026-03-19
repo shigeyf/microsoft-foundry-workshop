@@ -5,7 +5,7 @@ resource "azurerm_key_vault" "this" {
   name                = local.key_vault_name
   resource_group_name = azurerm_resource_group.this.name
   location            = var.location
-  tags                = var.tags
+  tags                = local.tags
 
   tenant_id                       = data.azurerm_client_config.current.tenant_id
   sku_name                        = "standard"
@@ -18,11 +18,13 @@ resource "azurerm_key_vault" "this" {
   soft_delete_retention_days      = var.keyvault_soft_delete_retention_days
 }
 
+// Deployer -> Key Vault
+//   Role Definitions: local.roles_deployer_to_keyvault @main.rbac.definitions.tf
 resource "azurerm_role_assignment" "keyvault_for_admin" {
-  count                = var.enable_cmk ? 1 : 0
+  for_each             = var.enable_cmk ? local.roles_deployer_to_keyvault : toset([])
   scope                = azurerm_key_vault.this[0].id
   principal_id         = data.azurerm_client_config.current.object_id
-  role_definition_name = "Key Vault Administrator"
+  role_definition_name = each.key
 
   depends_on = [
     azurerm_key_vault.this,

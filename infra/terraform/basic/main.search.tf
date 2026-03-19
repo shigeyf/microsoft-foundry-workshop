@@ -5,7 +5,7 @@ resource "azurerm_search_service" "this" {
   name                = local.search_service_name
   resource_group_name = azurerm_resource_group.this.name
   location            = var.location
-  tags                = var.tags
+  tags                = local.tags
 
   sku                 = var.ai_search_sku
   replica_count       = var.ai_search_replica_count
