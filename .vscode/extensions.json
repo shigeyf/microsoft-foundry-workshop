@@ -1,1 +1,17 @@
-{}
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "GitHub.vscode-github-actions",
+    "hashicorp.terraform",
+    "humao.rest-client",
+    "ms-azuretools.vscode-azureterraform",
+    "ms-azuretools.vscode-bicep",
+    "ms-python.python",
+    "ms-toolsai.jupyter",
+    "ms-toolsai.jupyter-keymap",
+    "ms-toolsai.jupyter-renderers",
+    "ms-vscode.azurecli",
+    "redhat.vscode-yaml",
+    "tamasfe.even-better-toml"
+  ]
+}
