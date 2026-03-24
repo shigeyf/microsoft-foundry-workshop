@@ -25,6 +25,13 @@ locals {
     "Search Index Data Reader",
   ])
 
+  // Foundry Project → Foundry Account (Parent-child RBAC)
+  // The Hosted Agent container runs as the Foundry Project MI. This grants it permission
+  // to call GPT-4.1 and text-embedding-3-small via DefaultAzureCredential inside @ai_function tools.
+  roles_foundry_project_to_foundry_account = toset([
+    "Cognitive Services User",
+  ])
+
   // Foundry Project → AI Search
   // Used by the Hosted Agent container to query AI Search indexes directly
   roles_foundry_project_to_search = toset([

@@ -67,11 +67,17 @@ type ModelDeploymentConfig = {
   @description('Model version string (e.g. 2025-04-14)')
   modelVersion: string
 
+  @description('Model format (e.g. OpenAI)')
+  format: string?
+
   @description('Provisioning SKU: GlobalStandard | Standard | DataZoneStandard')
   skuName: string
 
   @description('Capacity in thousands of tokens per minute (TPM)')
   capacity: int
+
+  @description('RAI policy name (e.g. Microsoft.DefaultV2). Required for certain models such as GPT-5.')
+  raiPolicyName: string?
 }
 
 // --- Network Isolation Types ---

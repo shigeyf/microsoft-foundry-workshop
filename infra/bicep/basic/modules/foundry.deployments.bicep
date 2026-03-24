@@ -53,10 +53,12 @@ resource deployments 'Microsoft.CognitiveServices/accounts/deployments@2025-09-0
     }
     properties: {
       model: {
-        format: 'OpenAI'
+        format: model.?format ?? 'OpenAI'
         name: model.modelName
         version: model.modelVersion
       }
+      // RAI policy name (required for certain models such as GPT-5)
+      raiPolicyName: model.?raiPolicyName ?? null
       // OnceCurrentVersionExpired: the deployed version runs until Microsoft retires it, then auto-upgrades.
       // PRODUCTION: consider 'NoAutoUpgrade' to pin the version and prevent unexpected behaviour changes
       // at the cost of manual version management.

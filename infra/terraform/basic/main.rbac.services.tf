@@ -4,6 +4,7 @@
 // Description:
 //   Centralizes all cross-service RBAC assignments to enable security review
 //   and auditing from a single location. This file handles permissions between:
+//     - Foundry Project → Foundry Account (Parent-child RBAC)
 //     - Foundry Account ↔ AI Search
 //     - Foundry Project ↔ AI Search
 //     - Foundry Project → ACR
@@ -14,6 +15,17 @@
 //     - main.rbac.services.tf: Service-to-service RBAC (this file)
 //     - main.rbac.cmk.tf: CMK encryption RBAC
 //     - main.rbac.users.tf: User/group RBAC
+
+// Foundry Project -> Foundry Account (Parent-child RBAC)
+//   The Hosted Agent container runs as the Foundry Project MI. This grants it permission
+//   to call GPT-4.1 and text-embedding-3-small via DefaultAzureCredential.
+//   Role Definitions: local.roles_foundry_project_to_foundry_account @main.rbac.definitions.tf
+resource "azurerm_role_assignment" "cognitive_account_for_cognitive_account_project" {
+  for_each             = local.roles_foundry_project_to_foundry_account
+  principal_id         = azurerm_cognitive_account_project.this.identity[0].principal_id
+  role_definition_name = each.key
+  scope                = azurerm_cognitive_account.this.id
+}
 
 // AI Search -> Foundry Account (Integrated Vectorization)
 //   Role Definitions: local.roles_search_to_foundry @main.rbac.definitions.tf

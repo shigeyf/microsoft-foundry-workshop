@@ -49,11 +49,14 @@ param foundryAccountPrincipalId string
 param foundryProjectPrincipalId string
 
 // --- AI Search ---
-@description('Name of the AI Search service')
-param searchServiceName string
+@description('Whether AI Search is enabled. When false, all AI Search RBAC assignments are skipped.')
+param enableAiSearch bool
 
-@description('Principal ID of the AI Search system-assigned managed identity')
-param searchPrincipalId string
+@description('Name of the AI Search service. Required when enableAiSearch is true.')
+param searchServiceName string = ''
+
+@description('Principal ID of the AI Search system-assigned managed identity. Required when enableAiSearch is true.')
+param searchPrincipalId string = ''
 
 // --- Container Registry ---
 @description('Name of the Azure Container Registry')
@@ -75,7 +78,7 @@ resource existingFoundryAccount 'Microsoft.CognitiveServices/accounts@2025-09-01
 }
 
 // AI Search reference for scoping
-resource existingSearch 'Microsoft.Search/searchServices@2025-05-01' existing = {
+resource existingSearch 'Microsoft.Search/searchServices@2025-05-01' existing = if (enableAiSearch) {
   name: searchServiceName
 }
 
@@ -94,7 +97,7 @@ resource existingBlobStorage 'Microsoft.Storage/storageAccounts@2025-01-01' exis
 // RBAC: Foundry Account MI → AI Search (Search Index Data Reader)
 // Used by the Foundry portal AI Search connection (authType: AAD) for connection validation
 // and indexer management. Scoped to the exact Search service.
-resource foundryAccountToSearchRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource foundryAccountToSearchRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (enableAiSearch) {
   name: guid(existingSearch.id, foundryAccountPrincipalId, roleIds.searchIndexDataReader)
   scope: existingSearch
   properties: {
@@ -109,7 +112,7 @@ resource foundryAccountToSearchRole 'Microsoft.Authorization/roleAssignments@202
 // RBAC: Foundry Project MI → AI Search (Search Index Data Reader)
 // Grants the Hosted Agent container permission to query the AI Search index directly
 // via azure-search-documents SDK inside @ai_function tool implementations.
-resource foundryProjectToSearchRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource foundryProjectToSearchRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (enableAiSearch) {
   name: guid(existingSearch.id, foundryProjectPrincipalId, roleIds.searchIndexDataReader)
   scope: existingSearch
   properties: {
@@ -145,7 +148,7 @@ resource foundryProjectToRegistryRole 'Microsoft.Authorization/roleAssignments@2
 //
 // Grants the AI Search service permission to call text-embedding-3-small
 // via Integrated Vectorization at both index-build time and query time.
-resource searchToFoundryRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource searchToFoundryRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (enableAiSearch) {
   name: guid(existingFoundryAccount.id, searchPrincipalId, roleIds.cognitiveServicesOpenAIUser)
   scope: existingFoundryAccount
   properties: {
@@ -161,7 +164,7 @@ resource searchToFoundryRole 'Microsoft.Authorization/roleAssignments@2022-04-01
 // https://learn.microsoft.com/en-us/azure/search/get-started-portal-agentic-retrieval?tabs=storage-perms#configure-access
 // On your Azure Blob Storage account:
 //   - Assign Storage Blob Data Reader to your search service identity.
-resource searchToBlobRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource searchToBlobRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (enableAiSearch) {
   name: guid(existingBlobStorage.id, searchPrincipalId, roleIds.storageBlobDataReader)
   scope: existingBlobStorage
   properties: {

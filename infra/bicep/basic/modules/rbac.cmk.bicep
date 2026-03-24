@@ -47,15 +47,17 @@ resource keyVault 'Microsoft.KeyVault/vaults@2025-05-01' existing = {
   name: keyVaultName
 }
 
-// RBAC: UAMI → Key Vault (Key Vault Crypto Service Encryption User)
-// Required for service-side encryption scenarios where the identity needs to perform
-// wrap/unwrap operations on behalf of Azure services (e.g., Cognitive Services CMK).
-// This is the only role required per official documentation.
-resource cryptoServiceEncryptionRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(keyVault.id, identityPrincipalId, roleIds.kvCryptoServiceEncryption)
+// RBAC: UAMI → Key Vault (Key Vault Crypto User)
+// Required for CMK encryption: Foundry uses this identity to perform encrypt/decrypt/wrapKey/unwrapKey
+// operations on the Key Vault key. 'Key Vault Crypto User' is required instead of
+// 'Key Vault Crypto Service Encryption User' because Foundry's Connection (secrets) management
+// performs direct key operations against Key Vault.
+// Reference: https://learn.microsoft.com/en-us/azure/foundry/concepts/encryption-keys-portal
+resource cryptoUserRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(keyVault.id, identityPrincipalId, roleIds.kvCryptoUser)
   scope: keyVault
   properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleIds.kvCryptoServiceEncryption)
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleIds.kvCryptoUser)
     principalId: identityPrincipalId
     principalType: 'ServicePrincipal'
   }

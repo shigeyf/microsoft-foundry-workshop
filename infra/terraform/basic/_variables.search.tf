@@ -41,5 +41,5 @@ variable "ai_search_partition_count" {
 variable "ai_semantic_search_sku" {
   description = "SKU for the AI Semantic Search resource"
   type        = string
-  default     = "standard"
+  default     = "free"
 }

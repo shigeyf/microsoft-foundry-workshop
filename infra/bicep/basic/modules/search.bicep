@@ -42,7 +42,7 @@ param partitionCount int = 1
 
 @description('Semantic search tier: disabled | free | standard')
 @allowed(['disabled', 'free', 'standard'])
-param semanticSearch string = 'standard'
+param semanticSearch string = 'free'
 
 @description('Disable local authentication (API keys). Set to true to enforce Entra ID (AAD) authentication only.')
 param disableLocalAuth bool = true

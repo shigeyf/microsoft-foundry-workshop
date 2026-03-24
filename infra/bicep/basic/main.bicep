@@ -99,22 +99,16 @@ param existingAppInsightsId string = ''
 // --- Foundry Models ---
 
 @description('List of models to deploy to Foundry (provisioned sequentially in array order)')
-param modelDeployments ModelDeploymentConfig[] = [
-  {
-    name: 'gpt-4.1'
-    modelName: 'gpt-4.1'
-    modelVersion: '2025-04-14'
-    skuName: 'GlobalStandard'
-    capacity: 10
-  }
-  {
-    name: 'text-embedding-3-small'
-    modelName: 'text-embedding-3-small'
-    modelVersion: '1'
-    skuName: 'Standard'
-    capacity: 10
-  }
-]
+param modelDeployments ModelDeploymentConfig[] = []
+
+// --- AI Search ---
+
+@description('''
+Whether to deploy Azure AI Search:
+  true  → Creates an AI Search service and configures connections and RBAC.
+  false (default) → Skips AI Search creation and all dependent resources (connections, RBAC).
+''')
+param enableAiSearch bool = false
 
 // --- Soft-deleted resource restore ---
 
@@ -170,16 +164,16 @@ var nameHash = uniqueString(resourceGroup().id, project, env, regionAbbr)
 //   alphanumName  → DNS-globally unique, no hyphens allowed
 //   simpleName    → Scope-unique only (resource group or parent resource); no hash needed
 var names = {
-  search:            longName('srch', project, env, regionAbbr, nameHash)  // globally unique DNS; max 60 chars, hyphens OK
-  foundryAccount:    longName('aif', project, env, regionAbbr, nameHash)   // globally unique DNS (customSubDomainName); max 64 chars
-  foundryProject:    simpleName('proj', project, env, regionAbbr)          // scoped within Foundry account; max 32 chars — 'proj-<project>-<env>-<regionAbbr>' (19 chars or less recommended for project)
-  containerRegistry: alphanumName('cr', project, env, nameHash)            // globally unique DNS; max 50 chars, alphanumeric only (no hyphens)
-  logAnalytics:      longName('log', project, env, regionAbbr, nameHash)   // scoped within resource group; max 63 chars — longName used for consistency
-  appInsights:       longName('appi', project, env, regionAbbr, nameHash)  // Application Insights component; max 260 chars — longName used for consistency
-  vault:             shortName('kv', project, env, nameHash)               // globally unique DNS; max 24 chars (KV limit) — shortName omits region to stay within limit
-  storage:           alphanumName('st', project, env, nameHash)            // globally unique DNS; max 24 chars, alphanumeric only (no hyphens)
+  search:            longName('srch', project, env, regionAbbr, nameHash)     // globally unique DNS; max 60 chars, hyphens OK
+  foundryAccount:    longName('cogacct', project, env, regionAbbr, nameHash)  // globally unique DNS (customSubDomainName); max 64 chars
+  foundryProject:    simpleName('proj', project, env, regionAbbr)             // scoped within Foundry account; max 32 chars — 'proj-<project>-<env>-<regionAbbr>' (19 chars or less recommended for project)
+  containerRegistry: alphanumName('cr', project, env, nameHash)               // globally unique DNS; max 50 chars, alphanumeric only (no hyphens)
+  logAnalytics:      longName('log', project, env, regionAbbr, nameHash)      // scoped within resource group; max 63 chars — longName used for consistency
+  appInsights:       longName('appi', project, env, regionAbbr, nameHash)     // Application Insights component; max 260 chars — longName used for consistency
+  vault:             shortName('kv', project, env, nameHash)                  // globally unique DNS; max 24 chars (KV limit) — shortName omits region to stay within limit
+  storage:           alphanumName('st', project, env, nameHash)               // globally unique DNS; max 24 chars, alphanumeric only (no hyphens)
   cmkIdentity:       longName('uami-cmk', project, env, regionAbbr, nameHash) // User-assigned managed identity for CMK encryption
-  cmkKey:            simpleName('cmk', project, env, regionAbbr)           // CMK key name in Key Vault (unique within Key Vault scope)
+  cmkKey:            simpleName('cmk', project, env, regionAbbr)              // CMK key name in Key Vault (unique within Key Vault scope)
 }
 
 // Build a clean string-only tags object — union() merges non-null optional tags,
@@ -218,7 +212,7 @@ module observability 'modules/observability.bicep' = {
 
 // --- AI Search ---
 
-module search 'modules/search.bicep' = {
+module search 'modules/search.bicep' = if (enableAiSearch) {
   params: {
     location: location
     tags: tags
@@ -228,17 +222,16 @@ module search 'modules/search.bicep' = {
 
 // --- Key Vault & CMK ---
 
-// Key Vault is always created (can also be used for secret and certificate management)
-// CMK-related resources (Identity, Key, RBAC) are created only when enableCmk=true
-module keyVault 'modules/keyvault.bicep' = {
+// Key Vault is created only when CMK is enabled.
+// CMK requires Key Vault for encryption key storage and crypto operations.
+// When CMK is disabled, no customer-managed Key Vault is needed — Connection secrets
+// are stored in Microsoft-managed internal storage, not in customer Key Vault.
+module keyVault 'modules/keyvault.bicep' = if (enableCmk) {
   params: {
     location: location
     tags: tags
     vaultName: names.vault
-    // Always enable purge protection regardless of CMK.
-    // This avoids a propagation timing issue when switching from enableCmk=false to true:
-    // ACR validates purge protection at deployment time before the Key Vault update is reflected.
-    // Trade-off: immediate purge after Key Vault deletion requires 'az keyvault purge'.
+    // CMK requires purge protection to prevent permanent loss of encryption keys
     enablePurgeProtection: true
     restore: keyvaultRestore
   }
@@ -257,16 +250,16 @@ module cmkIdentity 'modules/identity.cmk.bicep' = if (enableCmk) {
 module cmkKey 'modules/keyvault.key.bicep' = if (enableCmk) {
   params: {
     tags: tags
-    keyVaultName: keyVault.outputs.vaultName
+    keyVaultName: keyVault!.outputs.vaultName
     keyName: names.cmkKey
     enableRotation: enableCmkAutoRotation
   }
 }
 
-// RBAC: CMK Identity → Key Vault (Key Vault Crypto Service Encryption User)
+// RBAC: CMK Identity → Key Vault (Key Vault Crypto User)
 module rbacCmk 'modules/rbac.cmk.bicep' = if (enableCmk) {
   params: {
-    keyVaultName: keyVault.outputs.vaultName
+    keyVaultName: keyVault!.outputs.vaultName
     identityPrincipalId: cmkIdentity!.outputs.principalId
   }
 }
@@ -281,8 +274,9 @@ module foundry 'modules/foundry.bicep' = {
     projectName: names.foundryProject
     projectDisplayName: foundryProjectDisplayName
     projectDescription: foundryProjectDescription
-    searchServiceName: search.outputs.serviceName
-    searchServiceId: search.outputs.serviceId
+    enableAiSearch: enableAiSearch
+    searchServiceName: enableAiSearch ? search!.outputs.serviceName : ''
+    searchServiceId: enableAiSearch ? search!.outputs.serviceId : ''
     appInsightsConnectionString: observability.outputs.appInsightsConnectionString
     restore: foundryRestore
     // CMK parameters (only set when CMK is enabled)
@@ -297,7 +291,7 @@ module foundry 'modules/foundry.bicep' = {
     // requires a redeployment.
     cmkKeyVersion: enableCmk ? cmkKey!.outputs.keyVersion : ''
   }
-  dependsOn: [rbacCmk]
+  dependsOn: enableCmk ? [rbacCmk] : []
 }
 
 // Foundry model deployments — sequential, driven by modelDeployments param
@@ -322,7 +316,7 @@ module acr 'modules/acr.bicep' = {
     // Auto-rotation: use versionless URI; Fixed: use versioned URI
     keyVaultKeyUri: enableCmk ? (enableCmkAutoRotation ? cmkKey!.outputs.keyUri : cmkKey!.outputs.keyUriWithVersion) : ''
   }
-  dependsOn: [rbacCmk]
+  dependsOn: enableCmk ? [rbacCmk] : []
 }
 
 // --- Storage ---
@@ -343,8 +337,9 @@ module rbacServices 'modules/rbac.services.bicep' = {
     foundryAccountName:        foundry.outputs.accountName
     foundryAccountPrincipalId: foundry.outputs.principalId
     foundryProjectPrincipalId: foundry.outputs.foundryProjectPrincipalId
-    searchServiceName:         search.outputs.serviceName
-    searchPrincipalId:         search.outputs.principalId
+    enableAiSearch:            enableAiSearch
+    searchServiceName:         enableAiSearch ? search!.outputs.serviceName : ''
+    searchPrincipalId:         enableAiSearch ? search!.outputs.principalId : ''
     containerRegistryName:     acr.outputs.registryName
     blobStorageAccountName:    storage.outputs.storageAccountName
   }
@@ -355,9 +350,9 @@ module rbacUsers 'modules/rbac.users.bicep' = {
   params: {
     foundryAccountName:     foundry.outputs.accountName
     foundryProjectName:     foundry.outputs.projectName
-    searchServiceName:      search.outputs.serviceName
+    searchServiceName:      enableAiSearch ? search!.outputs.serviceName : ''
     blobStorageAccountName: storage.outputs.storageAccountName
-    keyVaultName:           keyVault.outputs.vaultName
+    keyVaultName:           enableCmk ? keyVault!.outputs.vaultName : ''
     deployerObjectId:       deployerObjectId
     aiDeveloperGroupId:     aiDeveloperGroupId
     aiUserGroupId:          aiUserGroupId
@@ -383,10 +378,10 @@ module rbacUsers 'modules/rbac.users.bicep' = {
 
 // Foundry Endpoint (OpenAI-compatible: {foundryEndpoint}/openai/...)
 output foundryEndpoint string = foundry.outputs.endpoint
-output searchEndpoint string = search.outputs.endpoint
+output searchEndpoint string = enableAiSearch ? search!.outputs.endpoint : ''
 output registryLoginServer string = acr.outputs.registryLoginServer
 output storageAccountName string = storage.outputs.storageAccountName
 output appInsightsConnectionString string = observability.outputs.appInsightsConnectionString
 output logAnalyticsId string = observability.outputs.logAnalyticsId
-output keyVaultName string = keyVault.outputs.vaultName
-output keyVaultUri string = keyVault.outputs.vaultUri
+output keyVaultName string = enableCmk ? keyVault!.outputs.vaultName : ''
+output keyVaultUri string = enableCmk ? keyVault!.outputs.vaultUri : ''

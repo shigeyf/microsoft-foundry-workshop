@@ -41,8 +41,8 @@ locals {
   hash10 = substr(local.resource_suffix_hash, 0, 10)
   hash14 = substr(local.resource_suffix_hash, 0, 14)
 
-  resource_long_name = "${join("-", local.resource_suffix)}-${local.hash6}"
-  //resource_simple_name   = join("-", local.resource_suffix) // NOT USED
+  resource_long_name     = "${join("-", local.resource_suffix)}-${local.hash6}"
+  resource_simple_name   = join("-", local.resource_suffix)
   resource_short_name    = "${substr(join("", local.resource_suffix), 0, 4)}-${substr(var.env, 0, 3)}${local.hash10}"
   resource_alphanum_name = "${substr(join("", local.resource_suffix), 0, 5)}${substr(var.env, 0, 3)}${local.hash14}"
 }

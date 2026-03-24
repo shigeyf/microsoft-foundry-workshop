@@ -2,10 +2,9 @@
 
 // Naming variables for AI Foundry resources
 locals {
-  resource_group_name    = "rg-${local.resource_long_name}"
-  cognitive_account_name = "cogacct-${local.resource_long_name}"
-  cognitive_project_name = "proj-${local.resource_long_name}"
-  //cognitive_uami_name         = "uami-${local.resource_long_name}"
+  resource_group_name         = "rg-${local.resource_long_name}"
+  cognitive_account_name      = "cogacct-${local.resource_long_name}"
+  cognitive_project_name      = "proj-${local.resource_simple_name}"
   uami_cmk_name               = "uami-cmk-${local.resource_long_name}"
   search_service_name         = "srch-${local.resource_long_name}"
   vnet_name                   = "vnet-${local.resource_long_name}"

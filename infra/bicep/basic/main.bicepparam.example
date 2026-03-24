@@ -28,6 +28,24 @@ param location = 'eastus2'
 // param dataClassification = 'internal' // public | internal | confidential | restricted
 // param expiryDate    = '2026-12-31'    // Scheduled decommission date for temporary resources
 
+// ── Optional Foundry Deployment Models ───────────────────────────
+param modelDeployments = [
+  {
+    name: 'gpt-4.1'
+    modelName: 'gpt-4.1'
+    modelVersion: '2025-04-14'
+    skuName: 'GlobalStandard'
+    capacity: 100
+  }
+  {
+    name: 'text-embedding-3-small'
+    modelName: 'text-embedding-3-small'
+    modelVersion: '1'
+    skuName: 'Standard'
+    capacity: 100
+  }
+]
+
 // ── Observability parameters (optional) ──────────────────────────
 param createObservability = true
 // param createObservability = false

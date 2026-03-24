@@ -44,6 +44,9 @@ param projectName string
 param searchServiceName string
 param searchServiceId string
 
+@description('Whether AI Search is enabled. When false, the search connection is not created.')
+param enableAiSearch bool
+
 @description('Display name shown in the Foundry portal')
 param projectDisplayName string
 
@@ -181,8 +184,8 @@ resource foundryProject 'Microsoft.CognitiveServices/accounts/projects@2025-09-0
   tags: tags
 }
 
-// Connection: Azure AI Search
-resource searchConnection 'Microsoft.CognitiveServices/accounts/connections@2025-09-01' = {
+// Connection: Azure AI Search (only when AI Search is enabled)
+resource searchConnection 'Microsoft.CognitiveServices/accounts/connections@2025-09-01' = if (enableAiSearch) {
   parent: foundryAccount
   name: searchConnectionName
   properties: {

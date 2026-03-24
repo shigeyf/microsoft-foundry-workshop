@@ -62,7 +62,7 @@ param curveName string = 'P-256'
 param expirationDate string = ''
 
 @description('Enable automatic key rotation')
-param enableRotation bool = true
+param enableRotation bool
 
 @description('Time before expiry to trigger rotation (ISO 8601 duration, e.g., P30D)')
 param rotationTimeBeforeExpiry string = 'P30D'
