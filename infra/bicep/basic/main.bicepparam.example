@@ -28,6 +28,12 @@ param location = 'eastus2'
 // param dataClassification = 'internal' // public | internal | confidential | restricted
 // param expiryDate    = '2026-12-31'    // Scheduled decommission date for temporary resources
 
+// ── Observability parameters (optional) ──────────────────────────
+param createObservability = true
+// param createObservability = false
+// param existingLogWorkspaceId = '/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.OperationalInsights/workspaces/<name>'
+// param existingAppInsightsId  = '/subscriptions/<sub>/resourceGroups/<rg>/providers/microsoft.insights/components/<name>'
+
 // ── Optional Foundry Deployment Models ───────────────────────────
 param modelDeployments = [
   {
@@ -46,11 +52,8 @@ param modelDeployments = [
   }
 ]
 
-// ── Observability parameters (optional) ──────────────────────────
-param createObservability = true
-// param createObservability = false
-// param existingLogWorkspaceId = '/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.OperationalInsights/workspaces/<name>'
-// param existingAppInsightsId  = '/subscriptions/<sub>/resourceGroups/<rg>/providers/microsoft.insights/components/<name>'
+// ── AI Search parameters (optional) ──────────────────────────────
+param enableAiSearch = true
 
 // ── CMK parameters (optional) ────────────────────────────────────
 param enableCmk = true
@@ -61,3 +64,6 @@ param enableCmkAutoRotation = true
 //   Key Vault:       --parameters keyvaultRestore=true
 //   Foundry Account: --parameters foundryRestore=true
 // Not required for normal new deployments (default values are used).
+// Please note that deploy.sh script will automatically detect and
+// set these parameters when needed, so manual intervention is not
+// typically necessary.
