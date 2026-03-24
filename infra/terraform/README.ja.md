@@ -7,7 +7,7 @@
 ### 1.1. Dev Container で開く
 
 このプロジェクトは Dev Container に対応しており、必要なツールが自動的にセットアップされます。
-Dev Container の設定は `.devcontainer/terraform/devcontainer.json` にあります。
+Dev Container の設定は `.devcontainer/devcontainer.json` にあります。
 
 > :bulb: **Dev Container とは？**
 >
@@ -21,14 +21,16 @@ Dev Container の設定は `.devcontainer/terraform/devcontainer.json` にあり
 
 #### 1.1.1 インストールされるツール
 
-| ツール | バージョン | 説明 |
-| -------- | ---------- | ------ |
-| Terraform | 1.9 | IaC ツール。Azureリソースを宣言的に定義・管理 |
-| TFLint | latest | Terraformコードの静的解析ツール |
-| Azure CLI | latest | AzureリソースをCLIから管理するツール |
-| Git & Zsh | - | バージョン管理とシェル環境 |
-| Docker-in-Docker | latest | コンテナ内でDockerを使用可能にする機能 |
-| Node.js | LTS | JavaScript ランタイム |
+| ツール           | バージョン | 説明                                          |
+| ---------------- | ---------- | --------------------------------------------- |
+| Python           | 3.12       | プログラミング言語ランタイム                  |
+| uv               | latest     | Python パッケージマネージャー                 |
+| Terraform        | 1.9        | IaC ツール。Azureリソースを宣言的に定義・管理 |
+| TFLint           | latest     | Terraformコードの静的解析ツール               |
+| Azure CLI        | latest     | AzureリソースをCLIから管理するツール          |
+| Git & Zsh        | -          | バージョン管理とシェル環境                    |
+| Docker-in-Docker | latest     | コンテナ内でDockerを使用可能にする機能        |
+| Node.js          | LTS        | JavaScript ランタイム                         |
 
 #### 1.1.2 使用方法
 
@@ -46,7 +48,7 @@ Dev Container の設定は `.devcontainer/terraform/devcontainer.json` にあり
 1. VS Codeで **File > Open Folder**
 2. リポジトリのルートフォルダを開く
 3. Ctrl+Shift+P → 「**Dev Containers: Reopen in Container**」を選択
-4. `Terraform Development` コンテナを選択
+4. `Microsoft Foundry Workshop` コンテナを選択
 5. 必要なツールが自動的にセットアップされる（初回は数分かかる場合があります）
 
 > :hourglass_flowing_sand: **初回起動時の注意**
@@ -86,14 +88,31 @@ Dev Containerを使用しない場合は、以下のツールを手動でイン�
 
 ```text
 basic/
-├── main.*.tf          - リソース定義 (rg, keyvault, cognitive, search, vnet 等)
-├── _variables.*.tf    - 変数定義 (foundry, keyvault, search, vnet)
+├── main.*.tf          - リソース定義
+│                        (rg, cognitive, cognitive.project, cognitive.deployment,
+│                         cognitive.connections, cognitive.cmk, keyvault, keyvault.key,
+│                         search, storage, acr, vnet, vnet.pe, vnet.private_dns_zone,
+│                         loganalytics, appinsights, uami.cmk,
+│                         rbac.definitions, rbac.services, rbac.users, rbac.cmk,
+│                         azuread.role)
+├── _variables.*.tf    - 変数定義 (tf, foundry, keyvault, search, vnet, acr)
 ├── _locals.*.tf       - ローカル変数 (命名規則)
+├── _.auto.tfvars      - 環境固有の変数値
 ├── data.tf            - データソース定義
-├── backend.tf         - 状態管理のバックエンド用の設定
+├── backend.tf         - 状態管理のバックエンド設定
 ├── providers.tf       - プロバイダー設定
-└── terraform.tf       - Terraformバージョン設定
+└── terraform.tf       - Terraform バージョンとプロバイダーの要件定義
 ```
+
+### 2.1. 使用プロバイダー
+
+| プロバイダー        | バージョン制約     | 用途                                                                   |
+| ------------------- | ------------------ | ---------------------------------------------------------------------- |
+| `hashicorp/azurerm` | >= 4.37.0, < 5.0.0 | Azure リソースの管理                                                   |
+| `azure/azapi`       | >= 2.5.0, < 3.0.0  | Azure REST API 経由のリソース管理（Cognitive Services Connections 等） |
+| `hashicorp/azuread` | >= 3.0.0, < 4.0.0  | Azure AD グループ・アプリロールの管理                                  |
+| `hashicorp/random`  | >= 3.5.0, < 4.0.0  | 命名規則用のランダム文字列生成                                         |
+| `hashicorp/time`    | >= 0.10.0, < 1.0.0 | RBAC 伝播の待機処理                                                    |
 
 ## 3. IaC による Azure へのリソースの展開
 
@@ -149,7 +168,9 @@ cd <project-root>/infra/terraform/basic
 
 既定では `is_production = false` となっており、以下の動作になります：
 
+- **Cognitive Account**: `terraform destroy` 実行時に完全削除（パージ）され、即座に同じ名前で再作成可能
 - **Key Vault**: `terraform destroy` 実行時に完全削除（パージ）され、即座に同じ名前で再作成可能
+  - ただし、**CMK（カスタマーマネージドキー）が有効な場合**はパージされません（暗号化キーの保護のため）
 - **リソースグループ**: リソースが含まれていても削除可能
 
 これにより、デモ環境を使い終わった後に完全にクリーンアップできます。
@@ -163,6 +184,7 @@ terraform apply
 
 本番環境では、誤った削除からデータを保護するため、`is_production = true` を設定します：
 
+- **Cognitive Account**: `terraform destroy` 実行時にソフト削除され、復旧期間中は回復可能
 - **Key Vault**: `terraform destroy` 実行時にソフト削除され、復旧期間中は回復可能
 - **リソースグループ**: リソースが含まれている場合は削除を防止
 
@@ -313,12 +335,12 @@ tflint
 
 **考えられる原因と対処法：**
 
-| 原因 | 対処法 |
-| ---- | ------ |
-| Docker Desktop が停止 | Docker Desktop を起動し、ステータスバーが緑色になるまで待つ |
-| WSL で Docker が未インストール | WSL 内で `docker --version` を実行して確認 |
-| Dev Containers 拡張機能がない | VS Code の拡張機能からインストール |
-| キャッシュの問題 | 「Dev Containers: Rebuild Container」を実行 |
+| 原因                           | 対処法                                                      |
+| ------------------------------ | ----------------------------------------------------------- |
+| Docker Desktop が停止          | Docker Desktop を起動し、ステータスバーが緑色になるまで待つ |
+| WSL で Docker が未インストール | WSL 内で `docker --version` を実行して確認                  |
+| Dev Containers 拡張機能がない  | VS Code の拡張機能からインストール                          |
+| キャッシュの問題               | 「Dev Containers: Rebuild Container」を実行                 |
 
 ### Azure 認証エラーが発生する
 
@@ -360,16 +382,16 @@ terraform init -backend-config=backend.hcl -upgrade
 
 初心者の方向けに、このドキュメントで使用される主な用語を説明します。
 
-| 用語 | 説明 |
-| ---- | ---- |
-| **Terraform** | HashiCorp 社が開発した IaC ツール |
-| **IaC** | インフラをコードとして管理する手法 |
-| **Provider** | Terraform がクラウドサービスと連携するプラグイン |
-| **State** | リソースの現在の状態を保存したファイル |
-| **Backend** | 状態ファイルの保存先。チームではAzure Storageを使用 |
-| **Module** | 再利用可能な Terraform コードの単位 |
-| **Plan** | 変更内容をプレビューする操作 |
-| **Apply** | Plan の変更を実際に適用する操作 |
+| 用語          | 説明                                                |
+| ------------- | --------------------------------------------------- |
+| **Terraform** | HashiCorp 社が開発した IaC ツール                   |
+| **IaC**       | インフラをコードとして管理する手法                  |
+| **Provider**  | Terraform がクラウドサービスと連携するプラグイン    |
+| **State**     | リソースの現在の状態を保存したファイル              |
+| **Backend**   | 状態ファイルの保存先。チームではAzure Storageを使用 |
+| **Module**    | 再利用可能な Terraform コードの単位                 |
+| **Plan**      | 変更内容をプレビューする操作                        |
+| **Apply**     | Plan の変更を実際に適用する操作                     |
 
 ## 7. 参考リンク
 

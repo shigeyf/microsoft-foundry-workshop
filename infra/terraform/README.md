@@ -7,8 +7,8 @@ This directory contains the Terraform IaC code for Microsoft Foundry deployment.
 ### 1.1. Open in Dev Container
 
 This project supports Dev Containers,
- and the necessary tools are automatically set up.
-The Dev Container configuration is located in `.devcontainer/terraform/devcontainer.json`.
+and the necessary tools are automatically set up.
+The Dev Container configuration is located in `.devcontainer/devcontainer.json`.
 
 > :bulb: **What is a Dev Container?**
 >
@@ -22,14 +22,16 @@ The Dev Container configuration is located in `.devcontainer/terraform/devcontai
 
 #### 1.1.1 Installed Tools
 
-| Tool | Version | Description |
-| -------- | ---------- | ------ |
-| Terraform | 1.9 | IaC tool. Declaratively define and manage Azure resources |
-| TFLint | latest | Static analysis tool for Terraform code |
-| Azure CLI | latest | Tool to manage Azure resources from CLI |
-| Git & Zsh | - | Version control and shell environment |
-| Docker-in-Docker | latest | Feature that enables Docker usage within containers |
-| Node.js | LTS | JavaScript runtime |
+| Tool             | Version | Description                                               |
+| ---------------- | ------- | --------------------------------------------------------- |
+| Python           | 3.12    | Programming language runtime                              |
+| uv               | latest  | Python package manager                                    |
+| Terraform        | 1.9     | IaC tool. Declaratively define and manage Azure resources |
+| TFLint           | latest  | Static analysis tool for Terraform code                   |
+| Azure CLI        | latest  | Tool to manage Azure resources from CLI                   |
+| Git & Zsh        | -       | Version control and shell environment                     |
+| Docker-in-Docker | latest  | Feature that enables Docker usage within containers       |
+| Node.js          | LTS     | JavaScript runtime                                        |
 
 #### 1.1.2 Usage
 
@@ -46,9 +48,9 @@ The Dev Container configuration is located in `.devcontainer/terraform/devcontai
 1. In VS Code, select **File > Open Folder**
 2. Open the repository root folder
 3. Press Ctrl+Shift+P → Select "**Dev Containers: Reopen in Container**"
-4. Select the `Terraform Development` container
+4. Select the `Microsoft Foundry Workshop` container
 5. The necessary tools will be automatically
-  set up (may take a few minutes on first run)
+   set up (may take a few minutes on first run)
 
 > :hourglass_flowing_sand: **Note on First Launch**
 >
@@ -59,7 +61,7 @@ The Dev Container configuration is located in `.devcontainer/terraform/devcontai
 ### 1.2. Open in Regular VS Code Environment
 
 A VS Code Workspace file is provided for this project,
- which works in a regular VS Code environment (without Dev Container).
+which works in a regular VS Code environment (without Dev Container).
 VS Code's workspace feature is useful for browsing across multiple projects.
 For Terraform execution, you need to manually install the tools.
 
@@ -89,14 +91,31 @@ Recommended VS Code extensions (auto-recommended in .vscode/extensions.json):
 
 ```text
 basic/
-├── main.*.tf          - Resource definitions (rg, keyvault, cognitive, search, vnet, etc.)
-├── _variables.*.tf    - Variable definitions (foundry, keyvault, search, vnet)
+├── main.*.tf          - Resource definitions
+│                        (rg, cognitive, cognitive.project, cognitive.deployment,
+│                         cognitive.connections, cognitive.cmk, keyvault, keyvault.key,
+│                         search, storage, acr, vnet, vnet.pe, vnet.private_dns_zone,
+│                         loganalytics, appinsights, uami.cmk,
+│                         rbac.definitions, rbac.services, rbac.users, rbac.cmk,
+│                         azuread.role)
+├── _variables.*.tf    - Variable definitions (tf, foundry, keyvault, search, vnet, acr)
 ├── _locals.*.tf       - Local variables (naming conventions)
+├── _.auto.tfvars      - Environment-specific variable values
 ├── data.tf            - Data source definitions
 ├── backend.tf         - Backend configuration for state management
 ├── providers.tf       - Provider configuration
-└── terraform.tf       - Terraform version configuration
+└── terraform.tf       - Terraform version and provider requirements
 ```
+
+### 2.1. Providers
+
+| Provider            | Version Constraint | Purpose                                                                       |
+| ------------------- | ------------------ | ----------------------------------------------------------------------------- |
+| `hashicorp/azurerm` | >= 4.37.0, < 5.0.0 | Azure resource management                                                     |
+| `azure/azapi`       | >= 2.5.0, < 3.0.0  | Azure resource management via REST API (Cognitive Services Connections, etc.) |
+| `hashicorp/azuread` | >= 3.0.0, < 4.0.0  | Azure AD group and app role management                                        |
+| `hashicorp/random`  | >= 3.5.0, < 4.0.0  | Random string generation for naming conventions                               |
+| `hashicorp/time`    | >= 0.10.0, < 1.0.0 | Wait handling for RBAC propagation                                            |
 
 ## 3. Deploying Resources to Azure with IaC
 
@@ -131,7 +150,7 @@ az account set --subscription <subscription-id or name>
 ```
 
 When using Dev Container,
- the host machine's `~/.azure` folder is automatically mounted,
+the host machine's `~/.azure` folder is automatically mounted,
 inheriting the Azure CLI login authentication context from previous executions.
 
 ### 3.2 Select IaC Module to Deploy
@@ -154,9 +173,14 @@ This setting changes the behavior when deleting resources.
 
 By default, `is_production = false`, which results in the following behavior:
 
+- **Cognitive Account**: Completely deleted (purged)
+  when running `terraform destroy`,
+  allowing immediate recreation with the same name
 - **Key Vault**: Completely deleted (purged)
   when running `terraform destroy`,
   allowing immediate recreation with the same name
+  - However, **when CMK (Customer Managed Key) is enabled**,
+    Key Vault is NOT purged (to protect the encryption key)
 - **Resource Group**: Can be deleted even if it contains resources
 
 This allows for complete cleanup after finishing with the demo environment.
@@ -169,8 +193,10 @@ terraform apply
 #### For Production Environment
 
 For production environments,
- set `is_production = true` to protect data from accidental deletion:
+set `is_production = true` to protect data from accidental deletion:
 
+- **Cognitive Account**: Soft-deleted when running `terraform destroy`,
+  recoverable during the retention period
 - **Key Vault**: Soft-deleted when running `terraform destroy`,
   recoverable during the retention period
 - **Resource Group**: Deletion is prevented if it contains resources
@@ -251,8 +277,8 @@ terraform apply
 ```
 
 When executed, the changes will be displayed
- and a confirmation prompt will appear.
- Type `yes` and press Enter to start the deployment.
+and a confirmation prompt will appear.
+Type `yes` and press Enter to start the deployment.
 
 ```text
 Do you want to perform these actions?
@@ -292,8 +318,8 @@ terraform destroy
 ## 4. Code Quality Checks
 
 When executing commit commands to the repository, checks described in this section
- are performed on staged files before
- the commit operation using the `pre-commit` tool.
+are performed on staged files before
+the commit operation using the `pre-commit` tool.
 To manually run the `pre-commit` tool, execute the following command:
 
 ```bash
@@ -324,17 +350,17 @@ tflint
 
 **Possible causes and solutions:**
 
-| Cause | Solution |
-| ---- | ------ |
-| Docker Desktop is stopped | Start Docker Desktop and wait until the status bar turns green |
-| Docker not installed in WSL | Run `docker --version` in WSL to verify |
-| Dev Containers extension missing | Install from VS Code extensions |
-| Cache issues | Run "Dev Containers: Rebuild Container" |
+| Cause                            | Solution                                                       |
+| -------------------------------- | -------------------------------------------------------------- |
+| Docker Desktop is stopped        | Start Docker Desktop and wait until the status bar turns green |
+| Docker not installed in WSL      | Run `docker --version` in WSL to verify                        |
+| Dev Containers extension missing | Install from VS Code extensions                                |
+| Cache issues                     | Run "Dev Containers: Rebuild Container"                        |
 
 ### Azure Authentication Error Occurs
 
 **Error example:**
- `Error: AADSTS700016: Application with identifier '...' was not found`
+`Error: AADSTS700016: Application with identifier '...' was not found`
 
 ```bash
 # Clear current authentication state
@@ -372,16 +398,16 @@ terraform init -backend-config=backend.hcl -upgrade
 
 For beginners, here are explanations of the main terms used in this document.
 
-| Term | Description |
-| ---- | ---- |
-| **Terraform** | IaC tool developed by HashiCorp |
-| **IaC** | Methodology for managing infrastructure as code |
-| **Provider** | Plugin that enables Terraform to interact with cloud services |
-| **State** | File that stores the current state of resources |
-| **Backend** | Storage location for state files. Team uses Azure Storage |
-| **Module** | Reusable unit of Terraform code |
-| **Plan** | Operation to preview changes |
-| **Apply** | Operation to apply planned changes |
+| Term          | Description                                                   |
+| ------------- | ------------------------------------------------------------- |
+| **Terraform** | IaC tool developed by HashiCorp                               |
+| **IaC**       | Methodology for managing infrastructure as code               |
+| **Provider**  | Plugin that enables Terraform to interact with cloud services |
+| **State**     | File that stores the current state of resources               |
+| **Backend**   | Storage location for state files. Team uses Azure Storage     |
+| **Module**    | Reusable unit of Terraform code                               |
+| **Plan**      | Operation to preview changes                                  |
+| **Apply**     | Operation to apply planned changes                            |
 
 ## 7. Reference Links
 
