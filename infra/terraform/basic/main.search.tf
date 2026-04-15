@@ -1,10 +1,14 @@
 // main.search.tf
 
+locals {
+  search_location = var.ai_search_location != "" ? var.ai_search_location : var.location
+}
+
 resource "azurerm_search_service" "this" {
   count               = var.enable_ai_search ? 1 : 0
   name                = local.search_service_name
   resource_group_name = azurerm_resource_group.this.name
-  location            = var.location
+  location            = local.search_location
   tags                = local.tags
 
   sku                 = var.ai_search_sku

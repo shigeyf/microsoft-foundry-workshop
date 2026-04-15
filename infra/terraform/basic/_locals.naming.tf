@@ -20,6 +20,14 @@ module "azure_region" {
   azure_region = var.location
 }
 
+// Load a module for Azure Region names and short names
+module "azure_region_search" {
+  count        = var.enable_ai_search && var.ai_search_location != "" ? 1 : 0
+  source       = "claranet/regions/azurerm"
+  version      = "8.0.2"
+  azure_region = var.ai_search_location
+}
+
 //
 //   longName     — DNS-globally unique, hyphens allowed, hash suffix appended
 //                  Pattern: <prefix>-<project>-<env>-<region>-<hash6>    (≤60 chars)

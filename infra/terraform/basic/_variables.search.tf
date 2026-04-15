@@ -12,6 +12,12 @@ variable "enable_ai_search_sensitivity_labels" {
   default     = false
 }
 
+variable "ai_search_location" {
+  description = "Azure region for the AI Search resource (required when enable_ai_search is true)"
+  type        = string
+  default     = ""
+}
+
 variable "ai_search_sku" {
   description = "SKU for the AI Search resource"
   type        = string

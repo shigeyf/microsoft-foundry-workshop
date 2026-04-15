@@ -6,13 +6,20 @@ locals {
   cognitive_account_name      = "cogacct-${local.resource_long_name}"
   cognitive_project_name      = "proj-${local.resource_simple_name}"
   uami_cmk_name               = "uami-cmk-${local.resource_long_name}"
-  search_service_name         = "srch-${local.resource_long_name}"
   vnet_name                   = "vnet-${local.resource_long_name}"
   loganalytics_workspace_name = "log-${local.resource_long_name}"
   application_insights_name   = "appi-${local.resource_long_name}"
   key_vault_name              = "kv-${local.resource_short_name}"
   storage_account_name        = "st${local.resource_alphanum_name}"
   acr_name                    = "cr${local.resource_alphanum_name}"
+
+  // For AI Search
+  search_resource_suffix = (
+    var.enable_ai_search && var.ai_search_location != ""
+    ? concat(var.naming_suffix, [var.env], [module.azure_region_search[0].location_short])
+    : local.resource_suffix
+  )
+  search_service_name = "srch-${join("-", local.search_resource_suffix)}-${local.hash6}"
 }
 
 // Configuration derived values
