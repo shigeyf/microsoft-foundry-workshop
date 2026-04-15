@@ -8,19 +8,19 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 dependencies = [
-  "azure-ai-projects>=2.0.0", # 統合プロジェクトクライアント
-  "azure-identity",           # 認証 (マネージド ID / サービスプリンシパル)
-  "openai",                   # Completions API 互換クライアント
-  "python-dotenv",            # 環境変数読み込み (.env ファイル)
-  "fastapi",                  # Web フレームワーク (App トラック用)
-  "uvicorn",                  # ASGI サーバー (App トラック用)
-  "websockets",               # WebSocket サポート (App トラック用)
+  "azure-ai-projects>=2.0.0", # Unified project client
+  "azure-identity",           # Authentication (Managed Identity / Service Principal)
+  "openai",                   # Completions API compatible client
+  "python-dotenv",            # Environment variable loading (.env file)
+  "fastapi",                  # Web framework (for App track)
+  "uvicorn",                  # ASGI server (for App track)
+  "websockets",               # WebSocket support (for App track)
 ]
 
 [project.optional-dependencies]
 dev = ["poethepoet>=0.32.0", "ruff>=0.9.0"]
-evaluation = ["azure-ai-evaluation"]        # Module 5〜6: 評価フレームワーク
-multi-agent = ["agent-framework"]           # Module 7〜8: マルチエージェント
+evaluation = ["azure-ai-evaluation"]        # Module 5-6: Evaluation framework
+multi-agent = ["agent-framework"]           # Module 7-8: Multi-agent
 
 
 # --------------------------------------------------------------------
