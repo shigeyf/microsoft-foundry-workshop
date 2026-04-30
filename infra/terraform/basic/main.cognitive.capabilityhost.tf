@@ -38,4 +38,9 @@ resource "azapi_resource" "capability_host" {
       enablePublicHostingEnvironment = true
     }
   }
+
+  timeouts {
+    create = "60m"
+    delete = "60m"
+  }
 }

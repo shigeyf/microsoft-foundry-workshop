@@ -19,6 +19,12 @@ locals {
   # Service-to-service RBAC role definitions (main.rbac.services.tf)
   # ---------------------------------------------------------------------------
 
+  # Foundry Account → BYO Key Vault
+  # Used for Foundry to store connection secrets in BYO Key Vault
+  roles_foundry_account_to_byo_keyvault = toset([
+    "Key Vault Secrets Officer",
+  ])
+
   # Foundry Account → AI Search
   # Used for Foundry portal AI Search connection validation and indexer management
   roles_foundry_account_to_search = toset([

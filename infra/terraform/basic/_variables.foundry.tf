@@ -93,3 +93,9 @@ variable "enable_cognitive_local_auth" {
   type        = bool
   default     = false
 }
+
+variable "enable_byo_keyvault" {
+  description = "Whether to enable integration with a Bring Your Own Key Vault (BYO KV) instead of using the default managed Key Vault for Foundry account."
+  type        = bool
+  default     = false
+}

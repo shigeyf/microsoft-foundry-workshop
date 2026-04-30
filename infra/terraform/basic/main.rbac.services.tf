@@ -19,6 +19,21 @@
 #     - main.rbac.cmk.tf: CMK encryption RBAC
 #     - main.rbac.users.tf: User/group RBAC
 
+# Foundry Account -> BYO Key Vault
+#   Role Definitions: local.roles_foundry_account_to_byo_keyvault @main.rbac.definitions.tf
+resource "azurerm_role_assignment" "byo_keyvault_for_foundry_account" {
+  for_each = var.enable_byo_keyvault ? local.roles_foundry_account_to_byo_keyvault : toset([])
+  # Need to use User Assigned Identity for CMK scenarios,
+  # as the Cognitive Account MI is not selected to be used for Key Vault access.
+  principal_id = (
+    var.enable_cmk
+    ? azurerm_user_assigned_identity.cmk[0].principal_id
+    : azurerm_cognitive_account.this.identity[0].principal_id
+  )
+  role_definition_name = each.key
+  scope                = azurerm_key_vault.this[0].id
+}
+
 # Foundry Account -> AI Search
 #   Role Definitions: local.roles_foundry_account_to_search @main.rbac.definitions.tf
 resource "azurerm_role_assignment" "search_service_for_cognitive_account" {
@@ -115,6 +130,13 @@ resource "azurerm_cosmosdb_sql_role_assignment" "byo_cosmos_contributor" {
 
   depends_on = [
     azapi_resource.project_capability_host
+  ]
+}
+resource "time_sleep" "wait_for_rbac_foundry_account" {
+  create_duration = var.cognitive_rbac_propagation_wait_duration
+
+  depends_on = [
+    azurerm_role_assignment.byo_keyvault_for_foundry_account,
   ]
 }
 

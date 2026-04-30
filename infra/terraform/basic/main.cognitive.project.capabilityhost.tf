@@ -27,5 +27,6 @@ resource "azapi_resource" "project_capability_host" {
 
   timeouts {
     create = "60m"
+    delete = "60m"
   }
 }

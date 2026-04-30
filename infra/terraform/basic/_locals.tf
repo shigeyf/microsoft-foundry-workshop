@@ -33,6 +33,9 @@ locals {
 
 # Configuration derived values
 locals {
+  # Whether to create Key Vault based on CMK or BYO KV requirements
+  create_key_vault = var.enable_cmk || var.enable_byo_keyvault
+
   # Whether to create VNet, PE, and private DNS zones
   enable_private_networking = var.network_isolation_mode != "public"
 
@@ -44,7 +47,7 @@ locals {
 
   # Enable purge protection on Key Vault for production environments to prevent permanent deletion.
   # When disabled in dev/demo, the vault can be purged automatically via the provider's purge_soft_delete_on_destroy setting.
-  keyvault_purge_protection_enabled = var.is_production || var.enable_cmk
+  keyvault_purge_protection_enabled = var.is_production || local.create_key_vault
 }
 
 # Build a clean tags map — merge base tags with non-empty optional tags,
@@ -81,7 +84,7 @@ locals {
     : azurerm_private_dns_zone.openai[0].id
   ) : null
 
-  private_dns_zone_id_keyvault = local.enable_private_networking && var.enable_cmk ? (
+  private_dns_zone_id_keyvault = local.enable_private_networking && local.create_key_vault ? (
     local.use_existing_dns_zones
     ? data.azurerm_private_dns_zone.existing_keyvault[0].id
     : azurerm_private_dns_zone.keyvault[0].id

@@ -28,7 +28,7 @@ resource "azurerm_private_endpoint" "cognitive" {
 
 # Private Endpoint for Key Vault
 resource "azurerm_private_endpoint" "keyvault" {
-  count               = local.enable_private_networking && var.enable_cmk ? 1 : 0
+  count               = local.enable_private_networking && local.create_key_vault ? 1 : 0
   name                = "pe-${local.key_vault_name}"
   resource_group_name = azurerm_resource_group.this.name
   location            = var.location

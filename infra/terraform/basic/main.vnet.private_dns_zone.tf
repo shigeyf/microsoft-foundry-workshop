@@ -46,7 +46,7 @@ data "azurerm_private_dns_zone" "existing_openai" {
 }
 
 data "azurerm_private_dns_zone" "existing_keyvault" {
-  count               = local.enable_private_networking && local.use_existing_dns_zones && var.enable_cmk ? 1 : 0
+  count               = local.enable_private_networking && local.use_existing_dns_zones && local.create_key_vault ? 1 : 0
   provider            = azurerm.connectivity
   name                = "privatelink.vaultcore.azure.net"
   resource_group_name = var.connectivity_dns_zone_resource_group
@@ -161,14 +161,14 @@ resource "azurerm_private_dns_zone_virtual_network_link" "openai_existing" {
 
 # Private DNS Zone for Key Vault
 resource "azurerm_private_dns_zone" "keyvault" {
-  count               = local.enable_private_networking && !local.use_existing_dns_zones && var.enable_cmk ? 1 : 0
+  count               = local.enable_private_networking && !local.use_existing_dns_zones && local.create_key_vault ? 1 : 0
   name                = "privatelink.vaultcore.azure.net"
   resource_group_name = azurerm_resource_group.this.name
   tags                = local.tags
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "keyvault" {
-  count                 = local.enable_private_networking && !local.use_existing_dns_zones && var.enable_cmk ? 1 : 0
+  count                 = local.enable_private_networking && !local.use_existing_dns_zones && local.create_key_vault ? 1 : 0
   name                  = "vnet-link-keyvault-${local.rand_id}"
   resource_group_name   = azurerm_resource_group.this.name
   private_dns_zone_name = azurerm_private_dns_zone.keyvault[0].name
@@ -178,7 +178,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "keyvault" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "keyvault_existing" {
-  count                 = local.enable_private_networking && local.use_existing_dns_zones && var.enable_cmk ? 1 : 0
+  count                 = local.enable_private_networking && local.use_existing_dns_zones && local.create_key_vault ? 1 : 0
   provider              = azurerm.connectivity
   name                  = "vnet-link-keyvault-${local.rand_id}"
   resource_group_name   = var.connectivity_dns_zone_resource_group

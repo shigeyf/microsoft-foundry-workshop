@@ -1,7 +1,7 @@
 # main.keyvault.tf
 
 resource "azurerm_key_vault" "this" {
-  count               = var.enable_cmk ? 1 : 0
+  count               = local.create_key_vault ? 1 : 0
   name                = local.key_vault_name
   resource_group_name = azurerm_resource_group.this.name
   location            = var.location
@@ -30,7 +30,7 @@ resource "azurerm_key_vault" "this" {
 # Deployer -> Key Vault
 #   Role Definitions: local.roles_deployer_to_keyvault @main.rbac.definitions.tf
 resource "azurerm_role_assignment" "keyvault_for_admin" {
-  for_each             = var.enable_cmk ? local.roles_deployer_to_keyvault : toset([])
+  for_each             = local.create_key_vault ? local.roles_deployer_to_keyvault : toset([])
   scope                = azurerm_key_vault.this[0].id
   principal_id         = data.azurerm_client_config.current.object_id
   role_definition_name = each.key
@@ -41,7 +41,7 @@ resource "azurerm_role_assignment" "keyvault_for_admin" {
 }
 
 resource "time_sleep" "wait_for_keyvault_rbac" {
-  count           = var.enable_cmk ? 1 : 0
+  count           = local.create_key_vault ? 1 : 0
   create_duration = var.keyvault_rbac_propagation_wait_duration
   depends_on = [
     azurerm_role_assignment.keyvault_for_admin,
