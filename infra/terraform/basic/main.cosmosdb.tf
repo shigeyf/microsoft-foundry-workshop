@@ -28,4 +28,8 @@ resource "azurerm_cosmosdb_account" "this" {
     location          = var.location
     failover_priority = 0
   }
+
+  lifecycle {
+    prevent_destroy = false
+  }
 }
