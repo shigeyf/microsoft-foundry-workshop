@@ -2,8 +2,9 @@
 
 # TODO: replace with AzureRM provider resource when supported
 resource "azapi_resource" "foundry_project_storage_connection" {
+  count     = var.enable_standard_setup ? 1 : 0
   type      = "Microsoft.CognitiveServices/accounts/projects/connections@2025-09-01"
-  name      = azurerm_storage_account.this.name
+  name      = azurerm_storage_account.agent_byo[0].name
   parent_id = azurerm_cognitive_account_project.this.id
 
   schema_validation_enabled = false
@@ -12,11 +13,11 @@ resource "azapi_resource" "foundry_project_storage_connection" {
     properties = {
       category = "AzureStorageAccount"
       authType = "AAD"
-      target   = azurerm_storage_account.this.primary_blob_endpoint
+      target   = azurerm_storage_account.agent_byo[0].primary_blob_endpoint
 
       metadata = {
         ApiType    = "Azure"
-        ResourceId = azurerm_storage_account.this.id
+        ResourceId = azurerm_storage_account.agent_byo[0].id
         location   = var.location
       }
     }
@@ -29,9 +30,9 @@ resource "azapi_resource" "foundry_project_storage_connection" {
 
 # TODO: replace with AzureRM provider resource when supported
 resource "azapi_resource" "foundry_project_ai_search_connection" {
-  count     = var.enable_ai_search ? 1 : 0
+  count     = var.enable_standard_setup ? 1 : 0
   type      = "Microsoft.CognitiveServices/accounts/projects/connections@2025-09-01"
-  name      = replace(azurerm_search_service.this[0].name, "-", "")
+  name      = replace(azurerm_search_service.agent_byo[0].name, "-", "")
   parent_id = azurerm_cognitive_account_project.this.id
 
   schema_validation_enabled = false
@@ -40,11 +41,11 @@ resource "azapi_resource" "foundry_project_ai_search_connection" {
     properties = {
       category = "CognitiveSearch"
       authType = "AAD"
-      target   = "https://${azurerm_search_service.this[0].name}.search.windows.net/"
+      target   = "https://${azurerm_search_service.agent_byo[0].name}.search.windows.net/"
 
       metadata = {
         ApiType    = "Azure"
-        ResourceId = azurerm_search_service.this[0].id
+        ResourceId = azurerm_search_service.agent_byo[0].id
         type       = "azure_ai_search"
         location   = var.location
       }
@@ -58,8 +59,9 @@ resource "azapi_resource" "foundry_project_ai_search_connection" {
 
 # TODO: replace with AzureRM provider resource when supported
 resource "azapi_resource" "foundry_project_cosmos_connection" {
+  count     = var.enable_standard_setup ? 1 : 0
   type      = "Microsoft.CognitiveServices/accounts/projects/connections@2025-09-01"
-  name      = azurerm_cosmosdb_account.this.name
+  name      = azurerm_cosmosdb_account.agent_byo[0].name
   parent_id = azurerm_cognitive_account_project.this.id
 
   schema_validation_enabled = false
@@ -68,11 +70,11 @@ resource "azapi_resource" "foundry_project_cosmos_connection" {
     properties = {
       category = "CosmosDb"
       authType = "AAD"
-      target   = azurerm_cosmosdb_account.this.endpoint
+      target   = azurerm_cosmosdb_account.agent_byo[0].endpoint
 
       metadata = {
         ApiType    = "Azure"
-        ResourceId = azurerm_cosmosdb_account.this.id
+        ResourceId = azurerm_cosmosdb_account.agent_byo[0].id
         location   = var.location
       }
     }

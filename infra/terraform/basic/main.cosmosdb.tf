@@ -1,7 +1,8 @@
 # main.cosmosdb.tf
 
-resource "azurerm_cosmosdb_account" "this" {
-  name                = local.cosmosdb_account_name
+resource "azurerm_cosmosdb_account" "agent_byo" {
+  count               = var.enable_standard_setup ? 1 : 0
+  name                = local.byo_cosmosdb_account_name
   resource_group_name = azurerm_resource_group.this.name
   location            = var.location
   tags                = local.tags

@@ -6,9 +6,10 @@
 #   and auditing from a single location. This file handles permissions between:
 #     - Foundry Account ↔ AI Search
 #     - Foundry Project → Foundry Account (Parent-child RBAC)
-#     - Foundry Project → Blob Storage
-#     - Foundry Project ↔ AI Search
-#     - Foundry Project → Cosmos DB
+#     - Foundry Project → BYO Blob Storage
+#     - Foundry Project → BYO AI Search
+#     - Foundry Project → BYO Cosmos DB
+#     - Foundry Project → AI Search RAG
 #     - Foundry Project → ACR
 #     - AI Search → Foundry Account (Integrated Vectorization)
 #     - AI Search → Blob Storage
@@ -38,31 +39,40 @@ resource "azurerm_role_assignment" "cognitive_account_for_cognitive_account_proj
   scope                = azurerm_cognitive_account.this.id
 }
 
-# Foundry Project -> Blob Storage
-#   Role Definitions: local.roles_foundry_project_to_blob @main.rbac.definitions.tf
-resource "azurerm_role_assignment" "blob_for_cognitive_account_project" {
-  for_each             = local.roles_foundry_project_to_blob
+# Foundry Project -> BYO Blob Storage
+#   Role Definitions: local.roles_foundry_project_to_byo_blob @main.rbac.definitions.tf
+resource "azurerm_role_assignment" "byo_blob_for_cognitive_account_project" {
+  for_each             = var.enable_standard_setup ? local.roles_foundry_project_to_byo_blob : toset([])
   principal_id         = azurerm_cognitive_account_project.this.identity[0].principal_id
   role_definition_name = each.key
-  scope                = azurerm_storage_account.this.id
+  scope                = azurerm_storage_account.agent_byo[0].id
 }
 
-# Foundry Project -> AI Search
+# Foundry Project -> BYO AI Search
+#   Role Definitions: local.roles_foundry_project_to_byo_search @main.rbac.definitions.tf
+resource "azurerm_role_assignment" "byo_search_service_for_cognitive_account_project" {
+  for_each             = var.enable_standard_setup ? local.roles_foundry_project_to_byo_search : toset([])
+  principal_id         = azurerm_cognitive_account_project.this.identity[0].principal_id
+  role_definition_name = each.key
+  scope                = azurerm_search_service.agent_byo[0].id
+}
+
+# Foundry Project -> BYO Cosmos DB
+#   Role Definitions: local.roles_foundry_project_to_byo_cosmosdb @main.rbac.definitions.tf
+resource "azurerm_role_assignment" "byo_cosmos_service_for_cognitive_account_project" {
+  for_each             = var.enable_standard_setup ? local.roles_foundry_project_to_byo_cosmosdb : toset([])
+  principal_id         = azurerm_cognitive_account_project.this.identity[0].principal_id
+  role_definition_name = each.key
+  scope                = azurerm_cosmosdb_account.agent_byo[0].id
+}
+
+# Foundry Project -> AI Search RAG
 #   Role Definitions: local.roles_foundry_project_to_search @main.rbac.definitions.tf
 resource "azurerm_role_assignment" "search_service_for_cognitive_account_project" {
   for_each             = var.enable_ai_search ? local.roles_foundry_project_to_search : toset([])
   principal_id         = azurerm_cognitive_account_project.this.identity[0].principal_id
   role_definition_name = each.key
   scope                = azurerm_search_service.this[0].id
-}
-
-# Foundry Project -> Cosmos DB
-#   Role Definitions: local.roles_foundry_project_to_cosmosdb @main.rbac.def
-resource "azurerm_role_assignment" "cosmos_service_for_cognitive_account_project" {
-  for_each             = local.roles_foundry_project_to_cosmosdb
-  principal_id         = azurerm_cognitive_account_project.this.identity[0].principal_id
-  role_definition_name = each.key
-  scope                = azurerm_cosmosdb_account.this.id
 }
 
 # Foundry Project -> ACR
@@ -95,12 +105,13 @@ resource "azurerm_role_assignment" "blob_for_search_service" {
 # Cosmos DB role assignment for Foundry Project
 # Foundry Project -> Cosmos DB data-plane access
 # after caphost creates enterprise_memory db
-resource "azurerm_cosmosdb_sql_role_assignment" "cosmos_contributor" {
+resource "azurerm_cosmosdb_sql_role_assignment" "byo_cosmos_contributor" {
+  count               = var.enable_standard_setup ? 1 : 0
   resource_group_name = azurerm_resource_group.this.name
-  account_name        = azurerm_cosmosdb_account.this.name
-  role_definition_id  = "${azurerm_cosmosdb_account.this.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  account_name        = azurerm_cosmosdb_account.agent_byo[0].name
+  role_definition_id  = "${azurerm_cosmosdb_account.agent_byo[0].id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
   principal_id        = azurerm_cognitive_account_project.this.identity[0].principal_id
-  scope               = "${azurerm_cosmosdb_account.this.id}/dbs/enterprise_memory"
+  scope               = "${azurerm_cosmosdb_account.agent_byo[0].id}/dbs/enterprise_memory"
 
   depends_on = [
     azapi_resource.project_capability_host
@@ -111,8 +122,8 @@ resource "time_sleep" "wait_for_rbac_foundry_project" {
   create_duration = var.cognitive_rbac_propagation_wait_duration
 
   depends_on = [
-    azurerm_role_assignment.blob_for_cognitive_account_project,
-    azurerm_role_assignment.search_service_for_cognitive_account_project,
-    azurerm_role_assignment.cosmos_service_for_cognitive_account_project,
+    azurerm_role_assignment.byo_blob_for_cognitive_account_project,
+    azurerm_role_assignment.byo_search_service_for_cognitive_account_project,
+    azurerm_role_assignment.byo_cosmos_service_for_cognitive_account_project,
   ]
 }

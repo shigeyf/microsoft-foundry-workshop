@@ -1,7 +1,7 @@
 # main.cognitive.project.capabilityhost.tf
 
 resource "azapi_resource" "project_capability_host" {
-  count     = var.enable_ai_search ? 1 : 0
+  count     = var.enable_standard_setup ? 1 : 0
   type      = "Microsoft.CognitiveServices/accounts/projects/capabilityHosts@2025-10-01-preview"
   name      = "projectcaphost"
   parent_id = azurerm_cognitive_account_project.this.id
@@ -11,9 +11,9 @@ resource "azapi_resource" "project_capability_host" {
   body = {
     properties = {
       capabilityHostKind       = "Agents"
-      storageConnections       = [azurerm_storage_account.this.name]
-      vectorStoreConnections   = [replace(azurerm_search_service.this[0].name, "-", "")]
-      threadStorageConnections = [azurerm_cosmosdb_account.this.name]
+      storageConnections       = [azurerm_storage_account.agent_byo[0].name]
+      vectorStoreConnections   = [replace(azurerm_search_service.agent_byo[0].name, "-", "")]
+      threadStorageConnections = [azurerm_cosmosdb_account.agent_byo[0].name]
     }
   }
 

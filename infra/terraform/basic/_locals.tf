@@ -2,13 +2,14 @@
 
 # Naming variables for AI Foundry resources
 locals {
-  resource_group_name    = "rg-${local.resource_long_name}"
-  cognitive_account_name = "cogacct-${local.resource_long_name}"
-  cognitive_project_name = "proj-${local.resource_simple_name}"
-  key_vault_name         = "kv-${local.resource_alphanum_name}"
-  uami_cmk_name          = "uami-cmk-${local.resource_long_name}"
-  storage_account_name   = "st${local.resource_alphanum_name}"
-  cosmosdb_account_name  = "cosmos-${local.resource_long_name}"
+  resource_group_name       = "rg-${local.resource_long_name}"
+  cognitive_account_name    = "cogacct-${local.resource_long_name}"
+  cognitive_project_name    = "proj-${local.resource_simple_name}"
+  key_vault_name            = "kv-${local.resource_alphanum_name}"
+  uami_cmk_name             = "uami-cmk-${local.resource_long_name}"
+  byo_storage_account_name  = "stbyofd${substr(var.env, 0, 3)}${local.hash14}"
+  byo_cosmosdb_account_name = "cosmos-byo-${local.resource_long_name}"
+  byo_search_service_name   = "srch-byo-${local.resource_long_name}"
 
   # For Observability
   loganalytics_workspace_name = "log-${local.resource_long_name}"
@@ -21,6 +22,7 @@ locals {
   vnet_name = "vnet-${local.resource_long_name}"
 
   # For AI Search
+  storage_account_name = "stsrch${substr(var.env, 0, 3)}${local.hash14}"
   search_resource_suffix = (
     var.enable_ai_search && var.ai_search_location != ""
     ? concat(var.naming_suffix, [var.env], [module.azure_region_search[0].location_short])
