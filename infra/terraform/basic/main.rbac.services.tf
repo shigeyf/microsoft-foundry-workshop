@@ -4,9 +4,11 @@
 # Description:
 #   Centralizes all cross-service RBAC assignments to enable security review
 #   and auditing from a single location. This file handles permissions between:
-#     - Foundry Project → Foundry Account (Parent-child RBAC)
 #     - Foundry Account ↔ AI Search
+#     - Foundry Project → Foundry Account (Parent-child RBAC)
+#     - Foundry Project → Blob Storage
 #     - Foundry Project ↔ AI Search
+#     - Foundry Project → Cosmos DB
 #     - Foundry Project → ACR
 #     - AI Search → Foundry Account (Integrated Vectorization)
 #     - AI Search → Blob Storage
@@ -15,6 +17,15 @@
 #     - main.rbac.services.tf: Service-to-service RBAC (this file)
 #     - main.rbac.cmk.tf: CMK encryption RBAC
 #     - main.rbac.users.tf: User/group RBAC
+
+# Foundry Account -> AI Search
+#   Role Definitions: local.roles_foundry_account_to_search @main.rbac.definitions.tf
+resource "azurerm_role_assignment" "search_service_for_cognitive_account" {
+  for_each             = var.enable_ai_search ? local.roles_foundry_account_to_search : toset([])
+  principal_id         = azurerm_cognitive_account.this.identity[0].principal_id
+  role_definition_name = each.key
+  scope                = azurerm_search_service.this[0].id
+}
 
 # Foundry Project -> Foundry Account (Parent-child RBAC)
 #   The Hosted Agent container runs as the Foundry Project MI. This grants it permission
@@ -25,6 +36,42 @@ resource "azurerm_role_assignment" "cognitive_account_for_cognitive_account_proj
   principal_id         = azurerm_cognitive_account_project.this.identity[0].principal_id
   role_definition_name = each.key
   scope                = azurerm_cognitive_account.this.id
+}
+
+# Foundry Project -> Blob Storage
+#   Role Definitions: local.roles_foundry_project_to_blob @main.rbac.definitions.tf
+resource "azurerm_role_assignment" "blob_for_cognitive_account_project" {
+  for_each             = local.roles_foundry_project_to_blob
+  principal_id         = azurerm_cognitive_account_project.this.identity[0].principal_id
+  role_definition_name = each.key
+  scope                = azurerm_storage_account.this.id
+}
+
+# Foundry Project -> AI Search
+#   Role Definitions: local.roles_foundry_project_to_search @main.rbac.definitions.tf
+resource "azurerm_role_assignment" "search_service_for_cognitive_account_project" {
+  for_each             = var.enable_ai_search ? local.roles_foundry_project_to_search : toset([])
+  principal_id         = azurerm_cognitive_account_project.this.identity[0].principal_id
+  role_definition_name = each.key
+  scope                = azurerm_search_service.this[0].id
+}
+
+# Foundry Project -> Cosmos DB
+#   Role Definitions: local.roles_foundry_project_to_cosmosdb @main.rbac.def
+resource "azurerm_role_assignment" "cosmos_service_for_cognitive_account_project" {
+  for_each             = local.roles_foundry_project_to_cosmosdb
+  principal_id         = azurerm_cognitive_account_project.this.identity[0].principal_id
+  role_definition_name = each.key
+  scope                = azurerm_cosmosdb_account.this.id
+}
+
+# Foundry Project -> ACR
+#   Role Definitions: local.roles_foundry_project_to_acr @main.rbac.definitions.tf
+resource "azurerm_role_assignment" "acr_for_cognitive_account_project" {
+  for_each             = local.roles_foundry_project_to_acr
+  principal_id         = azurerm_cognitive_account_project.this.identity[0].principal_id
+  role_definition_name = each.key
+  scope                = azurerm_container_registry.this.id
 }
 
 # AI Search -> Foundry Account (Integrated Vectorization)
@@ -45,29 +92,27 @@ resource "azurerm_role_assignment" "blob_for_search_service" {
   scope                = azurerm_storage_account.this.id
 }
 
-# Foundry Account -> AI Search
-#   Role Definitions: local.roles_foundry_account_to_search @main.rbac.definitions.tf
-resource "azurerm_role_assignment" "search_service_for_cognitive_account" {
-  for_each             = var.enable_ai_search ? local.roles_foundry_account_to_search : toset([])
-  principal_id         = azurerm_cognitive_account.this.identity[0].principal_id
-  role_definition_name = each.key
-  scope                = azurerm_search_service.this[0].id
+# Cosmos DB role assignment for Foundry Project
+# Foundry Project -> Cosmos DB data-plane access
+# after caphost creates enterprise_memory db
+resource "azurerm_cosmosdb_sql_role_assignment" "cosmos_contributor" {
+  resource_group_name = azurerm_resource_group.this.name
+  account_name        = azurerm_cosmosdb_account.this.name
+  role_definition_id  = "${azurerm_cosmosdb_account.this.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
+  principal_id        = azurerm_cognitive_account_project.this.identity[0].principal_id
+  scope               = "${azurerm_cosmosdb_account.this.id}/dbs/enterprise_memory"
+
+  depends_on = [
+    azapi_resource.project_capability_host
+  ]
 }
 
-# Foundry Project -> AI Search
-#   Role Definitions: local.roles_foundry_project_to_search @main.rbac.definitions.tf
-resource "azurerm_role_assignment" "search_service_for_cognitive_account_project" {
-  for_each             = var.enable_ai_search ? local.roles_foundry_project_to_search : toset([])
-  principal_id         = azurerm_cognitive_account_project.this.identity[0].principal_id
-  role_definition_name = each.key
-  scope                = azurerm_search_service.this[0].id
-}
+resource "time_sleep" "wait_for_rbac_foundry_project" {
+  create_duration = var.cognitive_rbac_propagation_wait_duration
 
-# Foundry Project -> ACR
-#   Role Definitions: local.roles_foundry_project_to_acr @main.rbac.definitions.tf
-resource "azurerm_role_assignment" "acr_for_cognitive_account_project" {
-  for_each             = local.roles_foundry_project_to_acr
-  principal_id         = azurerm_cognitive_account_project.this.identity[0].principal_id
-  role_definition_name = each.key
-  scope                = azurerm_container_registry.this.id
+  depends_on = [
+    azurerm_role_assignment.blob_for_cognitive_account_project,
+    azurerm_role_assignment.search_service_for_cognitive_account_project,
+    azurerm_role_assignment.cosmos_service_for_cognitive_account_project,
+  ]
 }

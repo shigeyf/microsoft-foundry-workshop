@@ -28,6 +28,7 @@ module "azure_region_search" {
   azure_region = var.ai_search_location
 }
 
+# Naming convention:
 #
 #   longName     — DNS-globally unique, hyphens allowed, hash suffix appended
 #                  Pattern: <prefix>-<project>-<env>-<region>-<hash6>    (≤60 chars)
@@ -43,14 +44,13 @@ locals {
 
   resource_suffix      = concat(var.naming_suffix, [var.env], [local.location_short_name])
   resource_suffix_hash = sha256(join("", concat(local.resource_suffix, [local.rand_id])))
-  # resource_short_name1 = substr(local.resource_suffix_hash, 0, 16)
 
-  hash6  = substr(local.resource_suffix_hash, 0, 6)
-  hash10 = substr(local.resource_suffix_hash, 0, 10)
+  hash6 = substr(local.resource_suffix_hash, 0, 6)
+  # UNUSED: hash10 = substr(local.resource_suffix_hash, 0, 10)
   hash14 = substr(local.resource_suffix_hash, 0, 14)
 
-  resource_long_name     = "${join("-", local.resource_suffix)}-${local.hash6}"
-  resource_simple_name   = join("-", local.resource_suffix)
-  resource_short_name    = "${substr(join("", local.resource_suffix), 0, 4)}-${substr(var.env, 0, 3)}${local.hash10}"
-  resource_alphanum_name = "${substr(join("", local.resource_suffix), 0, 5)}${substr(var.env, 0, 3)}${local.hash14}"
+  resource_long_name   = "${join("-", local.resource_suffix)}-${local.hash6}"
+  resource_simple_name = join("-", local.resource_suffix)
+  # UNUSED: resource_short_name    = "${substr(join("", local.resource_suffix), 0, 4)}-${substr(var.env, 0, 3)}${local.hash10}"
+  resource_alphanum_name = "${substr(join("", local.resource_suffix), 0, 4)}${substr(var.env, 0, 3)}${local.hash14}"
 }

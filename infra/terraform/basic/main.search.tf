@@ -15,7 +15,7 @@ resource "azurerm_search_service" "this" {
   replica_count       = var.ai_search_replica_count
   partition_count     = var.ai_search_partition_count
   hosting_mode        = "Default"
-  semantic_search_sku = var.ai_semantic_search_sku
+  semantic_search_sku = var.ai_search_sku != "free" ? var.ai_semantic_search_sku : null
 
   local_authentication_enabled  = false
   network_rule_bypass_option    = "AzureServices"

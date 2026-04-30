@@ -15,7 +15,15 @@ resource "azurerm_storage_account" "this" {
   min_tls_version                   = "TLS1_2"
   infrastructure_encryption_enabled = true
 
+  network_rules {
+    default_action             = "Allow"
+    bypass                     = ["AzureServices"]
+    ip_rules                   = []
+    virtual_network_subnet_ids = []
+  }
+
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
+    ignore_changes  = [network_rules]
   }
 }

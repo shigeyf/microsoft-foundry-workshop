@@ -2,16 +2,23 @@
 
 # Naming variables for AI Foundry resources
 locals {
-  resource_group_name         = "rg-${local.resource_long_name}"
-  cognitive_account_name      = "cogacct-${local.resource_long_name}"
-  cognitive_project_name      = "proj-${local.resource_simple_name}"
-  uami_cmk_name               = "uami-cmk-${local.resource_long_name}"
-  vnet_name                   = "vnet-${local.resource_long_name}"
+  resource_group_name    = "rg-${local.resource_long_name}"
+  cognitive_account_name = "cogacct-${local.resource_long_name}"
+  cognitive_project_name = "proj-${local.resource_simple_name}"
+  key_vault_name         = "kv-${local.resource_alphanum_name}"
+  uami_cmk_name          = "uami-cmk-${local.resource_long_name}"
+  storage_account_name   = "st${local.resource_alphanum_name}"
+  cosmosdb_account_name  = "cosmos-${local.resource_long_name}"
+
+  # For Observability
   loganalytics_workspace_name = "log-${local.resource_long_name}"
   application_insights_name   = "appi-${local.resource_long_name}"
-  key_vault_name              = "kv-${local.resource_short_name}"
-  storage_account_name        = "st${local.resource_alphanum_name}"
-  acr_name                    = "cr${local.resource_alphanum_name}"
+
+  # For AI Agent
+  acr_name = "cr${local.resource_alphanum_name}"
+
+  # For Enterprise Security
+  vnet_name = "vnet-${local.resource_long_name}"
 
   # For AI Search
   search_resource_suffix = (

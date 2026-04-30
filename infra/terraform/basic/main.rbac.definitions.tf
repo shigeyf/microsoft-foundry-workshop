@@ -32,10 +32,23 @@ locals {
     "Cognitive Services User",
   ])
 
-  # Foundry Project → AI Search
-  # Used by the Hosted Agent container to query AI Search indexes directly
+  # Foundry Project → Blob Storage (BYO File Storage)
+  # Used by Foundry Project to store Files uploaded by developers and end-users
+  roles_foundry_project_to_blob = toset([
+    "Storage Blob Data Contributor",
+  ])
+
+  # Foundry Project → AI Search (BYO Vector Search)
+  # Used by Foundry Project to manage Vector stores created by the agent
   roles_foundry_project_to_search = toset([
     "Search Index Data Reader",
+    "Search Service Contributor",
+  ])
+
+  # Foundry Project → Cosmos DB (BYO Conversation History)
+  # Used by Foundry Project to store Messages, conversation history, and agent metadata
+  roles_foundry_project_to_cosmosdb = toset([
+    "Cosmos DB Operator",
   ])
 
   # Foundry Project → ACR

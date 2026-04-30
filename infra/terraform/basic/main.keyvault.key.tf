@@ -39,6 +39,6 @@ resource "azurerm_key_vault_key" "this" {
   ]
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }

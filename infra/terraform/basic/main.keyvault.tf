@@ -17,8 +17,13 @@ resource "azurerm_key_vault" "this" {
   purge_protection_enabled        = local.keyvault_purge_protection_enabled
   soft_delete_retention_days      = var.keyvault_soft_delete_retention_days
 
+  network_acls {
+    default_action = local.public_network_access_enabled ? "Allow" : "Deny"
+    bypass         = "AzureServices"
+  }
+
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }
 
