@@ -21,6 +21,10 @@ resource "azapi_resource" "foundry_project_storage_connection" {
       }
     }
   }
+
+  depends_on = [
+    azapi_resource.capability_host
+  ]
 }
 
 # TODO: replace with AzureRM provider resource when supported
@@ -46,6 +50,10 @@ resource "azapi_resource" "foundry_project_ai_search_connection" {
       }
     }
   }
+
+  depends_on = [
+    azapi_resource.capability_host
+  ]
 }
 
 # TODO: replace with AzureRM provider resource when supported
@@ -69,4 +77,8 @@ resource "azapi_resource" "foundry_project_cosmos_connection" {
       }
     }
   }
+
+  depends_on = [
+    azapi_resource.capability_host
+  ]
 }
