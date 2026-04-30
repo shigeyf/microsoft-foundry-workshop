@@ -1,6 +1,6 @@
-// main.appinsights.tf
+# main.appinsights.tf
 
-// --- Create path ---
+# --- Create path ---
 resource "azurerm_application_insights" "this" {
   count               = var.enable_app_insights && var.create_observability ? 1 : 0
   name                = local.application_insights_name
@@ -12,7 +12,7 @@ resource "azurerm_application_insights" "this" {
   workspace_id     = local.log_analytics_workspace_id
 }
 
-// --- Reference path ---
+# --- Reference path ---
 data "azurerm_application_insights" "existing" {
   count               = var.enable_app_insights && !var.create_observability ? 1 : 0
   name                = element(split("/", var.existing_app_insights_id), length(split("/", var.existing_app_insights_id)) - 1)

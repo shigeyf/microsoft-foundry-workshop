@@ -1,4 +1,4 @@
-// _variables.vnet.tf
+# _variables.vnet.tf
 
 variable "network_isolation_mode" {
   description = <<-EOT
@@ -28,9 +28,9 @@ variable "private_endpoint_subnet_address_prefix" {
   default     = "192.168.1.0/24"
 }
 
-// ============================================================================
-// Existing Private DNS Zone Configuration
-// ============================================================================
+# ============================================================================
+# Existing Private DNS Zone Configuration
+# ============================================================================
 
 variable "use_existing_private_dns_zones" {
   description = <<-EOT

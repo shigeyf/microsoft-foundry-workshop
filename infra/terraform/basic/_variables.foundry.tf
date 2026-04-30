@@ -1,4 +1,4 @@
-// _variables.foundry.tf
+# _variables.foundry.tf
 
 variable "ai_project_developers_group_name" {
   description = "The name of the Azure AD group for AI Foundry project developers. Leave empty to skip developer group RBAC."

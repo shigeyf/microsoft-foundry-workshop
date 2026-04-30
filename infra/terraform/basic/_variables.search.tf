@@ -1,4 +1,4 @@
-// _variables.search.tf
+# _variables.search.tf
 
 variable "enable_ai_search" {
   description = "Enable AI Search for the AI Foundry resources"

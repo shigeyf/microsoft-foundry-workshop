@@ -1,4 +1,4 @@
-// main.keyvault.tf
+# main.keyvault.tf
 
 resource "azurerm_key_vault" "this" {
   count               = var.enable_cmk ? 1 : 0
@@ -16,10 +16,14 @@ resource "azurerm_key_vault" "this" {
   enabled_for_template_deployment = var.keyvault_enabled_for_template_deployment
   purge_protection_enabled        = local.keyvault_purge_protection_enabled
   soft_delete_retention_days      = var.keyvault_soft_delete_retention_days
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
-// Deployer -> Key Vault
-//   Role Definitions: local.roles_deployer_to_keyvault @main.rbac.definitions.tf
+# Deployer -> Key Vault
+#   Role Definitions: local.roles_deployer_to_keyvault @main.rbac.definitions.tf
 resource "azurerm_role_assignment" "keyvault_for_admin" {
   for_each             = var.enable_cmk ? local.roles_deployer_to_keyvault : toset([])
   scope                = azurerm_key_vault.this[0].id

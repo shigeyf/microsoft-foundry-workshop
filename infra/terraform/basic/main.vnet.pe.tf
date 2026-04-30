@@ -1,6 +1,6 @@
-// main.vnet.pe.tf
+# main.vnet.pe.tf
 
-// Private Endpoint for Cognitive Services (AI Foundry Hub)
+# Private Endpoint for Cognitive Services (AI Foundry Hub)
 resource "azurerm_private_endpoint" "cognitive" {
   count               = local.enable_private_networking ? 1 : 0
   name                = "pe-${local.cognitive_account_name}"
@@ -26,7 +26,7 @@ resource "azurerm_private_endpoint" "cognitive" {
   }
 }
 
-// Private Endpoint for Key Vault
+# Private Endpoint for Key Vault
 resource "azurerm_private_endpoint" "keyvault" {
   count               = local.enable_private_networking && var.enable_cmk ? 1 : 0
   name                = "pe-${local.key_vault_name}"
@@ -48,7 +48,7 @@ resource "azurerm_private_endpoint" "keyvault" {
   }
 }
 
-// Private Endpoint for AI Search
+# Private Endpoint for AI Search
 resource "azurerm_private_endpoint" "search" {
   count               = local.enable_private_networking && var.enable_ai_search ? 1 : 0
   name                = "pe-${local.search_service_name}"

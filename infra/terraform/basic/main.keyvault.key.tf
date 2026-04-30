@@ -1,4 +1,4 @@
-// main.keyvault.key.tf
+# main.keyvault.key.tf
 
 resource "azurerm_key_vault_key" "this" {
   count        = var.enable_cmk ? 1 : 0
@@ -37,4 +37,8 @@ resource "azurerm_key_vault_key" "this" {
   depends_on = [
     time_sleep.wait_for_keyvault_rbac,
   ]
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }

@@ -1,4 +1,4 @@
-// main.cognitive.deployment.tf
+# main.cognitive.deployment.tf
 
 resource "azurerm_cognitive_deployment" "models" {
   for_each             = { for deployment in var.cognitive_deployments : deployment.name => deployment }

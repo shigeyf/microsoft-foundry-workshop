@@ -1,4 +1,4 @@
-// main.cognitive.project.tf
+# main.cognitive.project.tf
 
 resource "azurerm_cognitive_account_project" "this" {
   name                 = local.cognitive_project_name

@@ -1,4 +1,4 @@
-// main.vnet.tf
+# main.vnet.tf
 
 resource "azurerm_virtual_network" "this" {
   count               = local.enable_private_networking ? 1 : 0

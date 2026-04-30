@@ -1,6 +1,6 @@
-// main.loganalytics.tf
+# main.loganalytics.tf
 
-// --- Create path ---
+# --- Create path ---
 resource "azurerm_log_analytics_workspace" "this" {
   count               = var.create_observability ? 1 : 0
   name                = local.loganalytics_workspace_name
@@ -12,7 +12,7 @@ resource "azurerm_log_analytics_workspace" "this" {
   retention_in_days = 30
 }
 
-// --- Reference path ---
+# --- Reference path ---
 data "azurerm_log_analytics_workspace" "existing" {
   count               = var.create_observability ? 0 : 1
   name                = element(split("/", var.existing_log_workspace_id), length(split("/", var.existing_log_workspace_id)) - 1)

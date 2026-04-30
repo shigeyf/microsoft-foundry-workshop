@@ -1,4 +1,4 @@
-// _variables.tf
+# _variables.tf
 
 variable "target_subscription_id" {
   description = "Azure Subscription Id for the bootstrap resources. Leave empty to use the az login subscription"
@@ -44,7 +44,7 @@ variable "tags" {
   }
 }
 
-// --- Optional tag parameters (omit or set to "" to leave unset) ---
+# --- Optional tag parameters (omit or set to "" to leave unset) ---
 
 variable "owner" {
   description = "Responsible team or owner (e.g., platform-team)"

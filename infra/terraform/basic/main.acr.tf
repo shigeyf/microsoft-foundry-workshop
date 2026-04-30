@@ -1,4 +1,4 @@
-// main.acr.tf
+# main.acr.tf
 
 resource "azurerm_container_registry" "this" {
   name                = local.acr_name
@@ -6,7 +6,7 @@ resource "azurerm_container_registry" "this" {
   location            = var.location
   tags                = local.tags
 
-  // CMK requires Premium SKU — automatically upgrade if CMK is enabled
+  # CMK requires Premium SKU — automatically upgrade if CMK is enabled
   sku                           = var.enable_cmk ? "Premium" : var.acr_sku
   public_network_access_enabled = local.public_network_access_enabled
   admin_enabled                 = false
@@ -16,9 +16,9 @@ resource "azurerm_container_registry" "this" {
     identity_ids = var.enable_cmk ? [azurerm_user_assigned_identity.cmk[0].id] : null
   }
 
-  // Customer Managed Key (CMK) encryption configuration.
-  // By default, ACR encrypts data at rest using Microsoft-managed keys.
-  // Auto-rotation: Use versionless key_vault_key_id to enable automatic key rotation.
+  # Customer Managed Key (CMK) encryption configuration.
+  # By default, ACR encrypts data at rest using Microsoft-managed keys.
+  # Auto-rotation: Use versionless key_vault_key_id to enable automatic key rotation.
   dynamic "encryption" {
     for_each = var.enable_cmk ? [1] : []
     content {

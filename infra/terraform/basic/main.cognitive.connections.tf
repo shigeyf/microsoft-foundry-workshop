@@ -1,6 +1,6 @@
-// main.cognitive.connections.tf
+# main.cognitive.connections.tf
 
-// TODO: replace with AzureRM provider resource when supported
+# TODO: replace with AzureRM provider resource when supported
 resource "azapi_resource" "foundry_ai_search_connection" {
   count                     = var.enable_ai_search ? 1 : 0
   type                      = "Microsoft.CognitiveServices/accounts/connections@2025-09-01"
@@ -25,7 +25,7 @@ resource "azapi_resource" "foundry_ai_search_connection" {
   }
 }
 
-// TODO: replace with AzureRM provider resource when supported
+# TODO: replace with AzureRM provider resource when supported
 resource "azapi_resource" "foundry_appInsights_connection" {
   count                     = var.enable_app_insights ? 1 : 0
   type                      = "Microsoft.CognitiveServices/accounts/connections@2025-09-01"

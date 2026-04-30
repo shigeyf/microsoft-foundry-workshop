@@ -1,4 +1,4 @@
-// providers.tf
+# providers.tf
 
 provider "azurerm" {
   storage_use_azuread = true
@@ -18,12 +18,12 @@ provider "azurerm" {
       # For demo/dev environments, purge soft-deleted items on destroy for clean teardown
       # For production, keep soft-delete protection to prevent accidental data loss
       purge_soft_delete_on_destroy = !var.is_production && !var.enable_cmk
-      //recover_soft_deleted_key_vaults = true
+      # recover_soft_deleted_key_vaults = true
     }
   }
 }
 
-// Provider for Connectivity subscription (existing Private DNS Zones)
+# Provider for Connectivity subscription (existing Private DNS Zones)
 provider "azurerm" {
   alias               = "connectivity"
   storage_use_azuread = true

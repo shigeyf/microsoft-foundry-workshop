@@ -1,4 +1,4 @@
-// main.cognitive.tf
+# main.cognitive.tf
 
 resource "azurerm_cognitive_account" "this" {
   name                = local.cognitive_account_name
@@ -23,10 +23,10 @@ resource "azurerm_cognitive_account" "this" {
     bypass         = "AzureServices"
   }
 
-  // Updating encryption mode from customer-managed keys to microsoft-managed keys is
-  // not supported when allowProjectManagement flag is set.
-  // Thus, `azurerm_cognitive_account_customer_managed_key` resource is not allowed.
-  // Use customer managed key with user assigned identity only.
+  # Updating encryption mode from customer-managed keys to microsoft-managed keys is
+  # not supported when allowProjectManagement flag is set.
+  # Thus, `azurerm_cognitive_account_customer_managed_key` resource is not allowed.
+  # Use customer managed key with user assigned identity only.
   dynamic "customer_managed_key" {
     for_each = var.enable_cmk ? [1] : []
     content {

@@ -1,4 +1,4 @@
-// main.storage.tf
+# main.storage.tf
 
 resource "azurerm_storage_account" "this" {
   name                = local.storage_account_name
@@ -14,4 +14,8 @@ resource "azurerm_storage_account" "this" {
   https_traffic_only_enabled        = true
   min_tls_version                   = "TLS1_2"
   infrastructure_encryption_enabled = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }

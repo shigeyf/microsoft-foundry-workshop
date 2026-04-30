@@ -1,11 +1,11 @@
-// main.azuread.role.tf
+# main.azuread.role.tf
 
-// Azure AI Search requires specific permissions to enable indexing capabilities
-// against files with sensitivity labels.
-//   - Microsoft Information Protection (MIP)
-//   - Microsoft Rights Management Services (MRMS)
-// The following code defines the necessary Azure AD service principal data sources
-// and app role assignments for MIP and MRMS.
+# Azure AI Search requires specific permissions to enable indexing capabilities
+# against files with sensitivity labels.
+#   - Microsoft Information Protection (MIP)
+#   - Microsoft Rights Management Services (MRMS)
+# The following code defines the necessary Azure AD service principal data sources
+# and app role assignments for MIP and MRMS.
 
 data "azuread_service_principal" "mip" {
   client_id = "870c4f2e-85b6-4d43-bdda-6ed9a579b725"

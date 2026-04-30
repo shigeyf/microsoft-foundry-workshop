@@ -1,4 +1,4 @@
-// main.search.tf
+# main.search.tf
 
 locals {
   search_location = var.ai_search_location != "" ? var.ai_search_location : var.location
@@ -21,8 +21,8 @@ resource "azurerm_search_service" "this" {
   network_rule_bypass_option    = "AzureServices"
   public_network_access_enabled = local.public_network_access_enabled
 
-  // authentication_failure_mode   = "http403"
-  // customer_managed_key_enforcement_enabled = false
+  # authentication_failure_mode   = "http403"
+  # customer_managed_key_enforcement_enabled = false
 
   identity {
     type = "SystemAssigned"

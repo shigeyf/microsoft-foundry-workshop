@@ -1,4 +1,4 @@
-// _variables.keyvault.tf
+# _variables.keyvault.tf
 
 variable "enable_cmk" {
   description = "Enable Customer Managed Key (CMK) for Foundry resource"
