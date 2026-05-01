@@ -2,7 +2,7 @@
 //
 // Usage:
 //   az deployment group create \
-//     --resource-group $RG \
+//     --resource-group $AZURE_RESOURCE_GROUP \
 //     --template-file main.bicep \
 //     --parameters main.bicepparam
 
@@ -28,12 +28,6 @@ param location = 'eastus2'
 // param dataClassification = 'internal' // public | internal | confidential | restricted
 // param expiryDate    = '2026-12-31'    // Scheduled decommission date for temporary resources
 
-// ── Observability parameters (optional) ──────────────────────────
-param createObservability = true
-// param createObservability = false
-// param existingLogWorkspaceId = '/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.OperationalInsights/workspaces/<name>'
-// param existingAppInsightsId  = '/subscriptions/<sub>/resourceGroups/<rg>/providers/microsoft.insights/components/<name>'
-
 // ── Optional Foundry Deployment Models ───────────────────────────
 param modelDeployments = [
   {
@@ -52,12 +46,25 @@ param modelDeployments = [
   }
 ]
 
-// ── AI Search parameters (optional) ──────────────────────────────
-param enableAiSearch = true
+// ── BYO Key Vault parameters (optional) ──────────────────────────
+param enableByoKeyVault = true
 
 // ── CMK parameters (optional) ────────────────────────────────────
 param enableCmk = true
 param enableCmkAutoRotation = true
+
+// ── Standard Setup (Hosted Agent BYO Resources) (optional) ───────
+param enableStandardSetup = true
+
+// ── Observability parameters (optional) ──────────────────────────
+param enableObservability = true
+param createObservability = true
+// param createObservability = false
+// param existingLogWorkspaceId = '/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.OperationalInsights/workspaces/<name>'
+// param existingAppInsightsId  = '/subscriptions/<sub>/resourceGroups/<rg>/providers/microsoft.insights/components/<name>'
+
+// ── AI Search parameters (optional) ──────────────────────────────
+param enableAiSearch = true
 
 // ── Soft-deleted resource restore mode ───────────────────────────
 // When a resource with the same name is soft-deleted, pass via CLI:

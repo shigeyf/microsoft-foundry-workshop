@@ -16,6 +16,7 @@
 var roleIds = {
   // Key Vault roles
   kvAdministrator:             '00482a5a-887f-4fb3-b363-3b7fe8e74483' // Key Vault Administrator
+  kvSecretsOfficer:            'b86a8fe4-44ce-4948-aee5-eccb2c155cd7' // Key Vault Secrets Officer
   kvSecretsUser:               '4633458b-17de-408a-b874-0445c86b69e6' // Key Vault Secrets User
   kvCryptoUser:                '12338af0-0e69-4776-bea7-57ae8d297424' // Key Vault Crypto User
   kvCryptoServiceEncryption:   'e147488a-f6f5-4113-8e2d-b22465e65bf6' // Key Vault Crypto Service Encryption User
@@ -33,6 +34,7 @@ var roleIds = {
   storageBlobDataContributor:  'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor
   // Cosmos DB roles
   cosmosDbAccountReader:       'fbdf93bf-df7d-467e-a4d2-9458aa1360c8' // Cosmos DB Account Reader Role
+  cosmosDbOperator:            '230815da-be43-4aae-9cb4-875f7bd000aa' // Cosmos DB Operator
   // Azure AI Foundry roles
   azureAIAccountOwner:         'e47c6f54-e4a2-4754-9501-8e0985b135e1' // Azure AI Account Owner
   azureAIAdministrator:        'b78c5d69-af96-48a3-bf8d-a8b4d589de94' // Azure AI Administrator

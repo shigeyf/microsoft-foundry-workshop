@@ -51,13 +51,26 @@ param foundryAccountName string
 @description('Name of the Foundry Project')
 param foundryProjectName string
 
+// --- Blob Storage Access ---
+@description('Name of Blob Storage account used for AI Search index storage. Pass empty string to skip Blob Storage RBAC assignments.')
+param blobStorageAccountName string = ''
+
 // --- AI Search Access ---
 @description('Name of the AI Search service. Pass empty string to skip AI Search RBAC assignments.')
 param searchServiceName string = ''
 
-// --- Blob Storage Access ---
-@description('Name of Blob Storage account used for AI Search index storage. Pass empty string to skip Blob Storage RBAC assignments.')
-param blobStorageAccountName string = ''
+// --- Standard Setup (Hosted Agent BYO Resources) ---
+@description('Whether Standard Setup is enabled. When false, all BYO resource RBAC assignments are skipped.')
+param enableStandardSetup bool = false
+
+@description('Name of the BYO Storage Account for Hosted Agents. Required when enableStandardSetup is true.')
+param agentStorageAccountName string = ''
+
+// @description('Name of the BYO AI Search service for Hosted Agents. Required when enableStandardSetup is true.')
+// param agentSearchServiceName string = ''
+
+@description('Name of the BYO Cosmos DB account for Hosted Agents. Required when enableStandardSetup is true.')
+param agentCosmosDbAccountName string = ''
 
 // --- Key Vault Access ---
 @description('Name of the Key Vault. Pass empty string to skip Key Vault RBAC assignments.')
@@ -86,8 +99,24 @@ resource existingBlobStorageAccount 'Microsoft.Storage/storageAccounts@2025-01-0
   name: blobStorageAccountName
 }
 
+// BYO Key Vault reference for scoping RBAC assignments
 resource existingKeyVault 'Microsoft.KeyVault/vaults@2025-05-01' existing = if (keyVaultName != '') {
   name: keyVaultName
+}
+
+// BYO Agent Storage Account reference for scoping (Standard Setup)
+resource existingAgentStorage 'Microsoft.Storage/storageAccounts@2025-01-01' existing = if (enableStandardSetup) {
+  name: agentStorageAccountName
+}
+
+// BYO Agent AI Search reference for scoping (Standard Setup)
+// resource existingAgentSearch 'Microsoft.Search/searchServices@2025-05-01' existing = if (enableStandardSetup) {
+//   name: agentSearchServiceName
+// }
+
+// BYO Cosmos DB reference for scoping (Standard Setup)
+resource existingAgentCosmosDb 'Microsoft.DocumentDB/databaseAccounts@2024-11-15' existing = if (enableStandardSetup) {
+  name: agentCosmosDbAccountName
 }
 
 // --- Deployer → Key Vault ---
@@ -182,6 +211,35 @@ resource deployerToBlobStorageRole 'Microsoft.Authorization/roleAssignments@2022
   }
 }
 
+// --- Deployer → BYO Blob Storage Account ---
+
+// RBAC: Deployer (User) → BYO Blob Storage Account (Storage Blob Data Contributor)
+resource deployerToByoBlobStorageRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (deployerObjectId != '' && agentStorageAccountName != '') {
+  name: guid(existingAgentStorage.id, deployerObjectId, roleIds.storageBlobDataContributor)
+  scope: existingAgentStorage
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleIds.storageBlobDataContributor)
+    principalId: deployerObjectId
+    principalType: 'User'
+  }
+}
+
+// --- Deployer → BYO Cosmos DB ---
+
+// Cosmos DB SQL Role Assignment: Deployer (User) → BYO Cosmos DB (Built-in Data Contributor)
+// Built-in Data Contributor (00000000-0000-0000-0000-000000000002) allows
+// full CRUD on items in any database within the account.
+resource deployerToByoCosmosDbSqlRole 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2024-11-15' = if (enableStandardSetup) {
+  parent: existingAgentCosmosDb
+  name: guid(existingAgentCosmosDb.id, deployerObjectId, '00000000-0000-0000-0000-000000000002')
+  properties: {
+    // Cosmos DB Built-in Data Contributor role definition
+    roleDefinitionId: '${existingAgentCosmosDb.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002'
+    principalId: deployerObjectId
+    // Account-level scope: grants access to all databases.
+    scope: existingAgentCosmosDb.id
+  }
+}
 
 // --- AI Developer Group → Foundry Account ---
 
@@ -262,9 +320,24 @@ resource aiDeveloperGroupToBlobStorageRole 'Microsoft.Authorization/roleAssignme
 // RBAC: AI User Group → Foundry Account (Azure AI User)
 // Grants users read-only access to AI resources and the ability to use
 // deployed models and agents without modification privileges.
-resource aiUserGroupRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (aiUserGroupId != '') {
+resource aiUserGroupRoleToFoundryRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (aiUserGroupId != '') {
   name: guid(existingFoundryAccount.id, aiUserGroupId, roleIds.azureAIUser)
   scope: existingFoundryAccount
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleIds.azureAIUser)
+    principalId: aiUserGroupId
+    principalType: 'Group'
+  }
+}
+
+// --- AI User Group → Foundry Project ---
+
+// RBAC: AI User Group → Foundry Project (Azure AI User)
+// Grants users read-only access to create and manage AI resources within
+// the Foundry Project, including creating models, deployments, and agents.
+resource aiUserGroupRoleToFoundryProjectRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (aiUserGroupId != '') {
+  name: guid(existingFoundryProject.id, aiUserGroupId, roleIds.azureAIUser)
+  scope: existingFoundryProject
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleIds.azureAIUser)
     principalId: aiUserGroupId

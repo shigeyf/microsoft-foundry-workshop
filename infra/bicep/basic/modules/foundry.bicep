@@ -1,33 +1,33 @@
 // foundry.bicep
-// Azure AI Foundry account, project, and AI Search connection.
+// Azure AI Foundry account and project.
 //
 // Description:
-//   Creates an AIServices account (kind: AIServices) as the Foundry hub, a Foundry project
-//   nested under the account, and an Azure AI Search connection shared across all projects.
+//   Creates an AIServices account (kind: AIServices) as the Foundry hub and a Foundry project
+//   nested under the account.
+//
+//   Account-level connections (BYO Key Vault, AI Search, Application Insights) are managed
+//   separately in foundry.connections.bicep, which is deployed AFTER RBAC assignments.
 //
 //   RBAC Management:
 //     - Parent-child RBAC (Foundry Project → Foundry Account) is managed in this module
 //     - Service-to-service RBAC is managed in rbac.services.bicep
 //     - User access RBAC is managed in rbac.users.bicep
 //
-//   Model deployments are managed separately in foundry-models.bicep.
+//   Model deployments are managed separately in foundry.deployments.bicep.
 //
 // Resources:
 //   Microsoft.CognitiveServices/accounts@2025-09-01
 //   Microsoft.CognitiveServices/accounts/projects@2025-09-01
-//   Microsoft.CognitiveServices/accounts/connections@2025-09-01
 //   Microsoft.Authorization/roleAssignments@2022-04-01
 //
 // Usage:
 //   module foundry 'modules/foundry.bicep' = {
 //     params: {
-//       location:    location
-//       accountName: naming.outputs.foundryAccountName
-//       projectName: naming.outputs.foundryProjectName
-//       searchServiceName:           search.outputs.serviceName
-//       searchServiceId:             search.outputs.serviceId
+//       location:                    location
+//       accountName:                 naming.outputs.foundryAccountName
+//       projectName:                 naming.outputs.foundryProjectName
 //       appInsightsConnectionString: observability.outputs.appInsightsConnectionString
-//       tags: tags
+//       tags:                        tags
 //     }
 //   }
 
@@ -41,20 +41,12 @@ param location string
 param tags object
 param accountName string
 param projectName string
-param searchServiceName string
-param searchServiceId string
-
-@description('Whether AI Search is enabled. When false, the search connection is not created.')
-param enableAiSearch bool
 
 @description('Display name shown in the Foundry portal')
 param projectDisplayName string
 
 @description('Human-readable description of the Foundry project')
 param projectDescription string
-
-@description('Application Insights connection string for Foundry Agent tracing and telemetry')
-param appInsightsConnectionString string
 
 @description('Disable local authentication (API keys). Set to true to enforce Entra ID authentication only.')
 param disableLocalAuth bool = true
@@ -69,6 +61,11 @@ param restore bool = false
 @description('Public network access: Enabled | Disabled. Set to Disabled and configure private endpoint for production.')
 @allowed(['Enabled', 'Disabled'])
 param publicNetworkAccess string = 'Enabled'
+
+// --- Application Insights (for Foundry Project telemetry) ---
+@secure()
+@description('Application Insights connection string for Foundry Agent tracing and telemetry. Forwarded to the Foundry project for agent trace/telemetry.')
+param appInsightsConnectionString string = ''
 
 // --- CMK (Customer Managed Key) Parameters ---
 @description('Enable Customer Managed Key (CMK) encryption. When true, CMK-related parameters are required.')
@@ -88,16 +85,6 @@ param cmkKeyName string = ''
 
 @description('CMK key version. Empty string enables auto-rotation; specific version pins to that version.')
 param cmkKeyVersion string = ''
-
-@description('Name for the Azure AI Search connection resource. Changing this after initial deployment forces resource recreation.')
-param searchConnectionName string = 'conn-azure-ai-search'
-
-// ---------------------------------------------------------------------------
-// Variables
-// ---------------------------------------------------------------------------
-
-// Used in connection metadata (Bicep does not allow variables in resource type declarations)
-var searchApiVersion = '2023-11-01'
 
 // ---------------------------------------------------------------------------
 // Resources
@@ -182,24 +169,6 @@ resource foundryProject 'Microsoft.CognitiveServices/accounts/projects@2025-09-0
     applicationInsightsConnectionString: appInsightsConnectionString
   }
   tags: tags
-}
-
-// Connection: Azure AI Search (only when AI Search is enabled)
-resource searchConnection 'Microsoft.CognitiveServices/accounts/connections@2025-09-01' = if (enableAiSearch) {
-  parent: foundryAccount
-  name: searchConnectionName
-  properties: {
-    category: 'CognitiveSearch'
-    target: 'https://${searchServiceName}.search.windows.net'
-    authType: 'AAD'
-    // isSharedToAll exposes this connection to all projects within the Foundry account.
-    // PRODUCTION: set to false and grant per-project access if multi-project isolation is required.
-    isSharedToAll: true
-    metadata: {
-      ResourceId: searchServiceId
-      ApiVersion: searchApiVersion
-    }
-  }
 }
 
 // --- Parent-Child RBAC (kept in this module due to tight coupling) ---
