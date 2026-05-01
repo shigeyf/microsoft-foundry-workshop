@@ -194,6 +194,9 @@ Whether to deploy Azure AI Search:
 ''')
 param enableAiSearch bool = false
 
+@description('Azure region for the AI Search service. Defaults to the main deployment location when empty. Used in connection metadata to reflect the actual Search service region when AI Search is deployed in a different region.')
+param aiSearchLocation string = location
+
 // ---------------------------------------------------------------------------
 // Variables
 // ---------------------------------------------------------------------------
@@ -298,7 +301,7 @@ module observability 'modules/observability.bicep' = if (enableObservability) {
 
 module search 'modules/search.bicep' = if (enableAiSearch) {
   params: {
-    location: location
+    location: aiSearchLocation
     tags: tags
     serviceName: names.search
   }
@@ -473,9 +476,10 @@ module foundryConnections 'modules/foundry.connections.bicep' = {
     keyVaultId:        enableByoKeyVault ? keyVault!.outputs.vaultId : ''
 
     // AI Search connection parameters (only set when enableAiSearch is true)
-    enableAiSearch:    enableAiSearch
-    searchServiceName: enableAiSearch ? search!.outputs.serviceName : ''
-    searchServiceId:   enableAiSearch ? search!.outputs.serviceId : ''
+    enableAiSearch:        enableAiSearch
+    searchServiceName:     enableAiSearch ? search!.outputs.serviceName : ''
+    searchServiceId:       enableAiSearch ? search!.outputs.serviceId : ''
+    searchServiceLocation: enableAiSearch ? search!.outputs.serviceLocation : location
 
     // App Insights account-level connection parameters (only set when enableObservability is true)
     enableAppInsights:           enableObservability
@@ -488,7 +492,7 @@ module foundryConnections 'modules/foundry.connections.bicep' = {
 
 // Foundry Account-level Capability Host — required for Hosted Agents (Standard Setup)
 // Must exist before the project-level Capability Host is provisioned.
-module accountCapabilityHost 'modules/foundry.capabilityhost.bicep' = if (enableStandardSetup) {
+module accountCapabilityHost 'modules/foundry.capabilityhost.bicep' = {
   params: {
     accountName: foundry.outputs.accountName
   }

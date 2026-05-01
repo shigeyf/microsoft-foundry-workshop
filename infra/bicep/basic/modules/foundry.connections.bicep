@@ -68,6 +68,9 @@ param searchServiceName string = ''
 @description('AI Search service resource ID. Required when enableAiSearch is true.')
 param searchServiceId string = ''
 
+@description('Azure region of the AI Search service. Used in connection metadata to reflect the actual Search service region when AI Search is deployed in a different region.')
+param searchServiceLocation string = location
+
 // --- Application Insights Connection Parameters ---
 @description('''
 Whether to create an Application Insights connection at account level on the Foundry Account.
@@ -142,7 +145,7 @@ resource searchConnection 'Microsoft.CognitiveServices/accounts/connections@2025
     metadata: {
       ApiType: 'Azure'
       ResourceId: searchServiceId
-      location: location
+      location: searchServiceLocation
       ApiVersion: searchApiVersion
     }
   }

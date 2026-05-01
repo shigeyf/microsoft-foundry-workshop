@@ -92,5 +92,6 @@ resource searchService 'Microsoft.Search/searchServices@2025-05-01' = {
 
 output serviceId string = searchService.id
 output serviceName string = searchService.name
+output serviceLocation string = searchService.location
 output endpoint string = 'https://${searchService.name}.search.windows.net'
 output principalId string = searchService.identity.principalId
