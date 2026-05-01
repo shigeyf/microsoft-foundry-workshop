@@ -8,25 +8,25 @@
 # the actual deployment.
 #
 # Usage:
-#   export RG="rg-foundry-aipoc-dev-use2-xxxx"
+#   export AZURE_RESOURCE_GROUP="rg-foundry-poc-dev-use2-xxxx"
+#   export LOCATION="eastus2"
 #   export deployerObjectId="<your-entra-object-id>"
 #   export aiDeveloperGroupId="<group-object-id>"   # optional, pass "" to skip
 #   export aiUserGroupId="<group-object-id>"        # optional, pass "" to skip
 #   bash deploy.sh
 #
 #   Or pass environment variables inline:
-#   RG=rg-... deployerObjectId=... bash deploy.sh
+#   AZURE_RESOURCE_GROUP=rg-... LOCATION=... deployerObjectId=... bash deploy.sh
 #
 # Required environment variables:
-#   RG                  Resource group name
-#   deployerObjectId    Entra ID Object ID of the deployer (for RBAC assignments)
+#   AZURE_RESOURCE_GROUP  Resource group name
+#   LOCATION              Azure region (e.g. eastus, westus2)
+#   deployerObjectId      Entra ID Object ID of the deployer       (default: auto-detected)
 #
 # Optional environment variables:
-#   aiDeveloperGroupId  Entra ID Object ID of AI Developer group (default: "")
-#   aiUserGroupId       Entra ID Object ID of AI User group     (default: "")
-#   LOCATION            Azure region for soft-delete lookup      (default: eastus2)
-#   DEPLOYMENT_NAME     Deployment name prefix                   (default: auto-generated)
-#   SCRIPT_DIR          Directory of this script                 (default: auto-detected)
+#   aiDeveloperGroupId    Entra ID Object ID of AI Developer group (default: "")
+#   aiUserGroupId         Entra ID Object ID of AI User group      (default: "")
+#   DEPLOYMENT_NAME       Deployment name prefix                   (default: auto-generated)
 
 set -euo pipefail
 
@@ -34,16 +34,21 @@ set -euo pipefail
 # Configuration
 # ---------------------------------------------------------------------------
 
+# Fixed value by default
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATE_FILE="${SCRIPT_DIR}/main.bicep"
 PARAMS_FILE="${SCRIPT_DIR}/main.bicepparam"
 
-RG="${RG:?Error: RG environment variable is required}"
-deployerObjectId="${deployerObjectId:?Error: deployerObjectId environment variable is required}"
+# Set a default value
+deployerObjectId="$(az ad signed-in-user show --query id -o tsv)"
 aiDeveloperGroupId="${aiDeveloperGroupId:-}"
 aiUserGroupId="${aiUserGroupId:-}"
-LOCATION="${LOCATION:?Error: LOCATION environment variable is required}"
 DEPLOYMENT_NAME="${DEPLOYMENT_NAME:-deployment-foundry-basic-$(date +%Y%m%d-%H%M%S)}"
+AZURE_SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_ID:-$(az account show --query id -o tsv)}"
+
+# User-provided values (required)
+LOCATION="${LOCATION:?Error: LOCATION environment variable is required}"
+AZURE_RESOURCE_GROUP="${AZURE_RESOURCE_GROUP:?Error: AZURE_RESOURCE_GROUP environment variable is required}"
 
 # ---------------------------------------------------------------------------
 # Step 1: Resolve resource names via what-if
@@ -51,12 +56,12 @@ DEPLOYMENT_NAME="${DEPLOYMENT_NAME:-deployment-foundry-basic-$(date +%Y%m%d-%H%M
 
 echo ""
 echo "=== Step 1: Resolving resource names via what-if ==="
-echo "    Resource group : ${RG}"
+echo "    Resource group : ${AZURE_RESOURCE_GROUP}"
 echo "    Template       : ${TEMPLATE_FILE}"
 echo ""
 
 WHAT_IF_JSON=$(az deployment group what-if \
-  --resource-group "${RG}" \
+  --resource-group "${AZURE_RESOURCE_GROUP}" \
   --template-file "${TEMPLATE_FILE}" \
   --parameters "${PARAMS_FILE}" \
   --parameters deployerObjectId="${deployerObjectId}" \
@@ -143,6 +148,7 @@ fi
 echo ""
 echo "=== Step 3: Deploying ==="
 echo "    Deployment name : ${DEPLOYMENT_NAME}"
+echo "    deployerObjectId: ${deployerObjectId}"
 if [[ -n "${EXTRA_PARAMS}" ]]; then
   echo "    Extra params    :${EXTRA_PARAMS}"
 fi
@@ -151,7 +157,7 @@ echo ""
 # shellcheck disable=SC2086
 az deployment group create \
   --name "${DEPLOYMENT_NAME}" \
-  --resource-group "${RG}" \
+  --resource-group "${AZURE_RESOURCE_GROUP}" \
   --template-file "${TEMPLATE_FILE}" \
   --parameters "${PARAMS_FILE}" \
   --parameters deployerObjectId="${deployerObjectId}" \
