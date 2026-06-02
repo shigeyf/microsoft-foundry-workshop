@@ -8,13 +8,19 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 dependencies = [
-  "azure-ai-projects>=2.0.0", # Unified project client
-  "azure-identity",           # Authentication (Managed Identity / Service Principal)
-  "openai",                   # Completions API compatible client
-  "python-dotenv",            # Environment variable loading (.env file)
-  "fastapi",                  # Web framework (for App track)
-  "uvicorn",                  # ASGI server (for App track)
-  "websockets",               # WebSocket support (for App track)
+  "azure-ai-projects>=2.0.0",                  # Unified project client
+  "agent-framework>=1.6.0",
+  "agent-framework-ag-ui>=1.0.0rc3",
+  "agent-framework-orchestrations>=1.0.0rc2",
+  "azure-ai-agentserver-responses>=1.0.0b7",
+  "azure-ai-agentserver-invocations>=1.0.0b4",
+  "azure-identity",                            # Authentication (Managed Identity / Service Principal)
+  "openai",                                    # Completions API compatible client
+  "python-dotenv",                             # Environment variable loading (.env file)
+  "fastapi",                                   # Web framework (for App track)
+  "uvicorn",                                   # ASGI server (for App track)
+  "websockets",                                # WebSocket support (for App track)
+  "pipdeptree",                                # Dependency tree visualization (for debugging)
 ]
 
 [project.optional-dependencies]
