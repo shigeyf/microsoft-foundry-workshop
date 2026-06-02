@@ -24,6 +24,9 @@
       "version": "latest",
       "extensions": "account"
     },
+    "ghcr.io/azure/azure-dev/azd:latest": {
+      "version": "latest"
+    },
     "ghcr.io/devcontainers/features/terraform:1": {
       "version": "1.9",
       "tflint": "latest"
@@ -42,6 +45,7 @@
         "DavidAnson.vscode-markdownlint",
         "esbenp.prettier-vscode",
         "GitHub.vscode-github-actions",
+        "HashiCorp.HCL",
         "hashicorp.terraform",
         "humao.rest-client",
         "ms-azuretools.vscode-azureresourcegroups",
@@ -57,11 +61,15 @@
         "ms-toolsai.jupyter-renderers",
         "ms-vscode.azurecli",
         "redhat.vscode-yaml",
-        "tamasfe.even-better-toml"
+        "tamasfe.even-better-toml",
+        "tfsec.tfsec",
+        // Terragrunt extensions
+        "caseycs.vscode-terragrunt-navigator",
+        "BahramJoharshamshiri.hcl-lsp"
       ],
-      // "settings" for this project must be placed in infra/terraform/.vscode/settings.json.
       // DevContainer automatically inherits the workspace settings.json.
       "settings": {
+        "python.useEnvironmentsExtension": true,
         "python-envs.terminal.autoActivationType": "shellStartup"
       }
     }
