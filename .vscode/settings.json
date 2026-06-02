@@ -1,6 +1,7 @@
 {
   "files.associations": {
-    "*.hcl": "terraform"
+    "terragrunt.hcl": "hcl",
+    "*.hcl": "hcl"
   },
   "files.exclude": {
     "**/.terraform": true,

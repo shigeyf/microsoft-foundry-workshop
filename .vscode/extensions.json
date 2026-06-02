@@ -5,21 +5,26 @@
     "DavidAnson.vscode-markdownlint",
     "esbenp.prettier-vscode",
     "GitHub.vscode-github-actions",
+    "HashiCorp.HCL",
     "hashicorp.terraform",
     "humao.rest-client",
-    "hediet.vscode-drawio",
     "ms-azuretools.vscode-azureresourcegroups",
     "ms-azuretools.vscode-azureterraform",
     "ms-azuretools.vscode-azure-github-copilot",
     "ms-azuretools.vscode-azure-mcp-server",
     "ms-azuretools.vscode-bicep",
     "ms-python.python",
+    "ms-python.vscode-python-envs",
     "ms-python.pylance",
     "ms-toolsai.jupyter",
     "ms-toolsai.jupyter-keymap",
     "ms-toolsai.jupyter-renderers",
     "ms-vscode.azurecli",
     "redhat.vscode-yaml",
-    "tamasfe.even-better-toml"
+    "tamasfe.even-better-toml",
+    "tfsec.tfsec",
+    // Terragrunt extensions
+    "caseycs.vscode-terragrunt-navigator",
+    "BahramJoharshamshiri.hcl-lsp"
   ]
 }
