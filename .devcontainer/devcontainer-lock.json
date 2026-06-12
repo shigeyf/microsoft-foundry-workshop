@@ -5,6 +5,11 @@
       "resolved": "ghcr.io/azure/azure-dev/azd@sha256:01bbec064fcb34f7c8730b3e3c2cc210699e213419664524982268b2910c4f73",
       "integrity": "sha256:01bbec064fcb34f7c8730b3e3c2cc210699e213419664524982268b2910c4f73"
     },
+    "ghcr.io/devcontainers-extra/features/direnv:1": {
+      "version": "1.0.3",
+      "resolved": "ghcr.io/devcontainers-extra/features/direnv@sha256:cd4c07352fb75cadcdde6f8cabba49224341eb4d5348870a7434b0ad15128a48",
+      "integrity": "sha256:cd4c07352fb75cadcdde6f8cabba49224341eb4d5348870a7434b0ad15128a48"
+    },
     "ghcr.io/devcontainers-extra/features/uv:1": {
       "version": "1.0.2",
       "resolved": "ghcr.io/devcontainers-extra/features/uv@sha256:1ac5b9f17a9e9e745933d0ac2ecf758e06ed3da4423cd22c94cce4d482fd2dd8",
