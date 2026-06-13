@@ -1,0 +1,132 @@
+# terraform.tfvars.example
+#
+# Copy this file to terraform.tfvars and customize the values for your environment.
+# Required variables are marked with (required).
+# Optional variables show their defaults and can be uncommented as needed.
+
+# ==============================================================================
+# General Settings
+# ==============================================================================
+
+# (optional) Azure Subscription ID for deployment. Leave empty to use the current az login subscription.
+# target_subscription_id = ""
+
+# (optional) Workload or service name, used for resource naming.
+# workload = "foundry"
+
+# (optional) Project or sub-workload name, used for resource naming.
+# project = "poc"
+
+# (optional) Environment tag value.
+# env = "dev"
+
+# (required) Azure region for the deployment.
+location = "swedencentral"
+
+# (optional) Whether to use a hash suffix for the resource group name to ensure uniqueness.
+# (recommended for non-production environments)
+# If false, resource group name will be deterministic based on naming convention,
+# which may cause conflicts if deploying multiple instances of this module with the same parameters.
+# use_hash_for_resource_group = false
+
+# (optional) Additional tags applied to all deployed resources.
+# tags = {}
+
+# (optional) Flag to indicate if this is a production environment.
+# When false (demo/dev), resources will be completely purged on destroy for clean teardown.
+# When true (production), resources will be soft-deleted to prevent accidental data loss.
+# is_production = false
+
+# ==============================================================================
+# Optional Tag Parameters (omit or set to "" to leave unset)
+# ==============================================================================
+
+# (optional) Responsible team or owner (e.g., "platform-team").
+# owner = ""
+
+# (optional) Cost center or chargeback code (e.g., "CC-1234").
+# cost_center = ""
+
+# (optional) Business unit or department (e.g., "engineering").
+# business_unit = ""
+
+# (optional) Business criticality: low | medium | high | critical
+# criticality = ""
+
+# (optional) Data classification: public | internal | confidential | restricted
+# data_classification = ""
+
+# (optional) Scheduled decommission date for temporary resources (ISO 8601, e.g., "2026-12-31").
+# expiry_date = ""
+
+# ==============================================================================
+# Foundry Project Settings
+# ==============================================================================
+
+# (optional) Display name shown in the Foundry portal.
+# foundry_project_display_name = "AI PoC Project"
+
+# (optional) Description of the Foundry Project.
+# foundry_project_description = ""
+
+# ==============================================================================
+# Model Deployments
+# ==============================================================================
+
+# (optional) List of models to deploy to Foundry.
+model_deployments = [
+  {
+    name          = "gpt-4.1-mini"
+    model_name    = "gpt-4.1-mini"
+    model_version = "2025-04-14"
+    sku_name      = "GlobalStandard"
+    capacity      = 100
+  },
+  {
+    name          = "text-embedding-3-large"
+    model_name    = "text-embedding-3-large"
+    model_version = "1"
+    sku_name      = "GlobalStandard"
+    capacity      = 100
+  }
+]
+
+# ==============================================================================
+# Observability Settings
+# ==============================================================================
+
+# (optional) Whether to enable observability (Log Analytics + Application Insights).
+# enable_observability = true
+
+# (optional) Whether to create new Log Analytics / App Insights resources.
+# Set to false to reference existing shared monitoring resources.
+# Only effective when enable_observability = true.
+# create_observability = true
+
+# (optional) Required when enable_observability = true and create_observability = false.
+# existing_log_workspace_id = ""
+# existing_app_insights_id = ""
+
+# ==============================================================================
+# Key Vault Settings
+# ==============================================================================
+
+# (optional) Whether to create a BYO Key Vault connection on the Foundry Account.
+# enable_byo_keyvault = false
+
+# ==============================================================================
+# RBAC Settings
+# ==============================================================================
+
+# (optional) Entra ID object ID of the deployer user (empty string to skip).
+# deployer_object_id = ""
+
+# (optional) If true, assign Foundry Owner (full access incl. data plane) to deployer
+# instead of Foundry Account Owner (control plane only).
+# deployer_use_foundry_owner = false
+
+# (optional) Display name of the Entra ID group for Foundry Developers (empty string to skip).
+# foundry_developers_group_name = ""
+
+# (optional) Display name of the Entra ID group for Foundry Users (empty string to skip).
+# foundry_users_group_name = ""

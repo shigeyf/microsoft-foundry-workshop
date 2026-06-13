@@ -1,0 +1,9 @@
+# .gitignore for environments folder
+
+*
+!.gitignore
+!template/
+!template/.envrc.example
+!template/.gitignore
+!template/terraform.tfvars
+!template/terragrunt.hcl

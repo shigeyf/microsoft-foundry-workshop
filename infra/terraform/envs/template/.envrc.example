@@ -1,0 +1,23 @@
+# .envrc.example
+#
+# Copy this file to create .envrc:
+#   cp .envrc.example .envrc
+#
+# .envrc is excluded from git (.gitignore already configured).
+# After setting values, environment variables are loaded automatically
+# when you enter this directory:
+#   direnv allow .   # Required once to trust this file
+
+# --- Azure Authentication ---
+export ARM_TENANT_ID=""
+export ARM_SUBSCRIPTION_ID=""
+
+# --- Terraform Backend (Azure Storage) ---
+export ARM_BACKEND_RESOURCE_GROUP=""
+export ARM_BACKEND_STORAGE_ACCOUNT=""
+
+# --- Optional Backend / Deployment Settings ---
+# export ARM_BACKEND_CONTAINER="tfstate"
+# export ARM_BACKEND_KEY="foundry.terraform.tfstate"
+# export DEPLOYMENT_NAME="basic"
+# export ENABLE_BACKEND_PUBLIC_ACCESS="false"
