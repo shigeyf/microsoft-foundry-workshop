@@ -43,6 +43,10 @@ override.tf.json
 .terraformrc
 terraform.rc
 
+# Ignore .terraform.lock.hcl files
+conventions/**/.terraform.lock.hcl
+modules/**/.terraform.lock.hcl
+
 # Ignore backend file
 backend.hcl
 backend.hcl.*
